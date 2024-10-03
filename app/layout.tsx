@@ -13,7 +13,7 @@ export default function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>SukaSamaSuka Job Board</title>
+        <title>SukaSamaSuka</title>
       </head>
       <body>
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
