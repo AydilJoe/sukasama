@@ -16,6 +16,7 @@ import {
   useColorModeValue,
   Container,
   Text,
+  Input,
 } from '@chakra-ui/react'
 import { jobGrades } from '@/data/jobGrades'
 
@@ -43,6 +44,7 @@ interface JobPostFormProps {
 }
 
 export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
+  const [jobNameInput, setJobNameInput] = useState('')
   const [jobName, setJobName] = useState('')
   const [jobGrade, setJobGrade] = useState('')
   const [currentState, setCurrentState] = useState('')
@@ -59,7 +61,17 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
   const subHeadingColor = useColorModeValue('teal.600', 'teal.300')
   const inputBgColor = useColorModeValue('white', 'gray.700')
 
-  const uniqueJobNames = useMemo(() => Array.from(new Set(jobGrades.map(job => job.name))), [])
+  const uniqueJobNames = useMemo(() => {
+    const names = Array.from(new Set(jobGrades.map(job => job.name)))
+    return names.sort((a, b) => a.localeCompare(b))
+  }, [])
+
+  const filteredJobNames = useMemo(() => {
+    return uniqueJobNames.filter(name => 
+      name.toLowerCase().includes(jobNameInput.toLowerCase())
+    )
+  }, [uniqueJobNames, jobNameInput])
+
   const states = useMemo(() => Object.keys(malaysiaStatesAndDistricts), [])
 
   useEffect(() => {
@@ -134,6 +146,7 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
           isClosable: true,
         })
 
+        setJobNameInput('')
         setJobName('')
         setJobGrade('')
         setCurrentState('')
@@ -177,8 +190,25 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
               <GridItem colSpan={2}>
                 <FormControl isRequired>
                   <FormLabel htmlFor="jobName">Job Name</FormLabel>
-                  <Select
+                  <Input
                     id="jobName"
+                    value={jobNameInput}
+                    onChange={(e) => {
+                      setJobNameInput(e.target.value)
+                      setJobName('')
+                      setJobGrade('')
+                    }}
+                    placeholder="Type to search job name"
+                    bg={inputBgColor}
+                    size="sm"
+                  />
+                </FormControl>
+              </GridItem>
+              <GridItem colSpan={2}>
+                <FormControl isRequired>
+                  <FormLabel htmlFor="jobNameSelect">Select Job Name</FormLabel>
+                  <Select
+                    id="jobNameSelect"
                     value={jobName}
                     onChange={(e) => {
                       setJobName(e.target.value)
@@ -188,7 +218,7 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
                     bg={inputBgColor}
                     size="sm"
                   >
-                    {uniqueJobNames.map((name, index) => (
+                    {filteredJobNames.map((name, index) => (
                       <option key={index} value={name}>{name}</option>
                     ))}
                   </Select>
