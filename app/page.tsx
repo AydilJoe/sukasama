@@ -66,7 +66,10 @@ export default function Home() {
             <HStack justifyContent="space-between" alignItems="center" wrap="wrap">
               <VStack align="flex-start" spacing={0}>
                 <Heading as="h1" size="2xl" color={primaryColor}>
-                  SukaSamaSuka
+                  SukaSamaSuka 
+                </Heading>
+                <Heading as="h2" size="l" color={primaryColor}>
+                  by AJ
                 </Heading>
                 <Text fontSize="xl" fontWeight="medium" color="gray.500">
                   Pertukaran suka sama suka untuk penjawat awam Malaysia
