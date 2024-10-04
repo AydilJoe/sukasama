@@ -45,7 +45,7 @@ export default function Home() {
                 SukaSamaSuka
               </Heading>
               <Text fontSize="xl" fontWeight="medium" color="gray.500">
-                Petukaran suka sama suka.
+                Pertukaran suka sama suka.
               </Text>
             </VStack>
             {session && <LogoutButton />}
