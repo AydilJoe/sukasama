@@ -1,13 +1,13 @@
 'use client'
 
-import { Box, Container, Heading, Text, VStack, OrderedList, ListItem, useColorModeValue, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react'
+import { Box, Container, Heading, Text, VStack, UnorderedList, ListItem, useColorModeValue } from '@chakra-ui/react'
 import SEO from '@/components/SEO'
 
 export default function TermsOfUse() {
   const bgColor = useColorModeValue('gray.50', 'gray.900')
   const cardBgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const textColor = useColorModeValue('gray.800', 'gray.100')
+  const textColor = useColorModeValue('gray.700', 'gray.200')
   const headingColor = useColorModeValue('blue.600', 'blue.300')
 
   const terms = [
@@ -51,28 +51,23 @@ export default function TermsOfUse() {
       <Box as="main" minHeight="100vh" bg={bgColor} py={12}>
         <Container maxW="container.md">
           <VStack spacing={8} align="stretch" bg={cardBgColor} p={8} borderRadius="lg" boxShadow="md" borderColor={borderColor} borderWidth={1}>
-            <Heading as="h1" size="2xl" textAlign="center" color={headingColor}>Terma Penggunaan</Heading>
-            <Text fontSize="lg" textAlign="center">
+            <Heading as="h1" size="2xl" textAlign="center" color={headingColor} mb={6}>
+              Terma Penggunaan
+            </Heading>
+            <Text fontSize="lg" mb={6} color={textColor}>
               Selamat datang ke SukaSamaSuka. Dengan menggunakan platform kami, anda bersetuju untuk mematuhi terma penggunaan berikut:
             </Text>
-            <Accordion allowMultiple>
+            <VStack spacing={6} align="stretch">
               {terms.map((term, index) => (
-                <AccordionItem key={index} border="none">
-                  <h2>
-                    <AccordionButton _expanded={{ bg: 'blue.50', color: 'blue.600' }}>
-                      <Box flex="1" textAlign="left" fontWeight="semibold">
-                        {term.title}
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    {term.content}
-                  </AccordionPanel>
-                </AccordionItem>
+                <Box key={index}>
+                  <Heading as="h2" size="md" color={headingColor} mb={2}>
+                    {index + 1}. {term.title}
+                  </Heading>
+                  <Text color={textColor}>{term.content}</Text>
+                </Box>
               ))}
-            </Accordion>
-            <Text mt={4} fontSize="sm" color={textColor}>
+            </VStack>
+            <Text mt={6} fontSize="sm" color={textColor}>
               Jika anda mempunyai sebarang pertanyaan mengenai Terma Penggunaan ini, sila hubungi kami melalui halaman Hubungi Kami.
             </Text>
           </VStack>
