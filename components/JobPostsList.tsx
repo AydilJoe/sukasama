@@ -31,6 +31,10 @@ import {
   Icon,
   Stack,
   IconButton,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
 } from '@chakra-ui/react'
 import { ExternalLinkIcon, RepeatIcon, PhoneIcon, CheckIcon, CloseIcon, DeleteIcon } from '@chakra-ui/icons'
 import { FaMapMarkerAlt } from 'react-icons/fa'
@@ -70,6 +74,7 @@ export default function JobPostsList() {
   const [selectedMatchUserId, setSelectedMatchUserId] = useState<string | null>(null)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [multiWayMatches, setMultiWayMatches] = useState<MultiWayMatch[]>([])
+  const [totalJobPostCount, setTotalJobPostCount] = useState<number>(0)
   const toast = useToast()
 
   const bgColor = useColorModeValue('white', 'gray.800')
@@ -90,9 +95,9 @@ export default function JobPostsList() {
     setIsLoading(true)
 
     try {
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from('job_posts')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -101,6 +106,7 @@ export default function JobPostsList() {
 
       setAllJobPosts(data || [])
       setUserJobPosts(data.filter(post => post.user_id === currentUserId) || [])
+      setTotalJobPostCount(count || 0)
     } catch (error) {
       console.error('Error fetching job posts:', error)
       toast({
@@ -418,19 +424,19 @@ export default function JobPostsList() {
         isClosable: true,
       })
 
-  // Refresh the job posts
-  fetchAllJobPosts()
-} catch (error) {
-  console.error('Error deleting job post:', error)
-  toast({
-    title: 'Error',
-    description: 'Failed to delete the job post. Please try again.',
-    status: 'error',
-    duration: 3000,
-    isClosable: true,
-  })
-}
-}, [toast, fetchAllJobPosts])
+      // Refresh the job posts
+      fetchAllJobPosts()
+    } catch (error) {
+      console.error('Error deleting job post:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to delete the job post. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+  }, [toast, fetchAllJobPosts])
 
   const renderJobPost = useCallback((post: JobPost) => {
     const matches = findMatches(post, allJobPosts)
@@ -561,6 +567,11 @@ export default function JobPostsList() {
             </Button>
           </Stack>
         </Flex>
+        <Stat>
+          <StatLabel>Total Job Posts</StatLabel>
+          <StatNumber>{totalJobPostCount}</StatNumber>
+          <StatHelpText>From all users</StatHelpText>
+        </Stat>
         {isLoading ? (
           <Flex justify="center" align="center" height="200px">
             <Spinner size="xl" color="blue.500" />
