@@ -35,6 +35,11 @@ import {
   StatLabel,
   StatNumber,
   StatHelpText,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  CloseButton,
 } from '@chakra-ui/react'
 import { ExternalLinkIcon, RepeatIcon, PhoneIcon, CheckIcon, CloseIcon, DeleteIcon } from '@chakra-ui/icons'
 import { FaMapMarkerAlt } from 'react-icons/fa'
@@ -75,6 +80,8 @@ export default function JobPostsList() {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [multiWayMatches, setMultiWayMatches] = useState<MultiWayMatch[]>([])
   const [totalJobPostCount, setTotalJobPostCount] = useState<number>(0)
+  const [hasMatches, setHasMatches] = useState(false)
+  const [showNotification, setShowNotification] = useState(false)
   const toast = useToast()
 
   const bgColor = useColorModeValue('white', 'gray.800')
@@ -107,6 +114,9 @@ export default function JobPostsList() {
       setAllJobPosts(data || [])
       setUserJobPosts(data.filter(post => post.user_id === currentUserId) || [])
       setTotalJobPostCount(count || 0)
+
+      // Check for matches after fetching job posts
+      checkForMatches(data, currentUserId)
     } catch (error) {
       console.error('Error fetching job posts:', error)
       toast({
@@ -146,6 +156,23 @@ export default function JobPostsList() {
       })
     }
   }, [currentUserId, toast])
+
+  const checkForMatches = useCallback((jobPosts: JobPost[], userId: string) => {
+    const userPosts = jobPosts.filter(post => post.user_id === userId)
+    const otherPosts = jobPosts.filter(post => post.user_id !== userId)
+
+    const matches = userPosts.some(userPost => 
+      otherPosts.some(post => 
+        post.job_name === userPost.job_name &&
+        post.job_grade === userPost.job_grade &&
+        post.current_location === userPost.expected_location &&
+        post.expected_location === userPost.current_location
+      )
+    )
+
+    setHasMatches(matches)
+    setShowNotification(matches)
+  }, [])
 
   const findMatches = useCallback((currentPost: JobPost, allPosts: JobPost[]) => {
     const [currentState, currentDistrict] = currentPost.current_location.split(', ')
@@ -546,6 +573,18 @@ export default function JobPostsList() {
   return (
     <Container maxW="container.xl" py={8}>
       <VStack spacing={8} align="stretch">
+        {showNotification && (
+          <Alert status="success" variant="subtle" flexDirection="column" alignItems="center" justifyContent="center" textAlign="center" borderRadius="md">
+            <AlertIcon boxSize="40px" mr={0} />
+            <AlertTitle mt={4} mb={1} fontSize="lg">
+              Anda mempunyai padanan baru!
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+              Terdapat padanan baru untuk pos kerja anda. Sila semak senarai pos kerja anda untuk maklumat lanjut.
+            </AlertDescription>
+            <CloseButton position="absolute" right="8px" top="8px" onClick={() => setShowNotification(false)} />
+          </Alert>
+        )}
         <Flex justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={4}>
           <Heading as="h2" size="xl" color={headingColor}>My Job Posts</Heading>
           <Stack direction={{ base: 'column', sm: 'row' }} spacing={4}>
