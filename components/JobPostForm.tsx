@@ -10,15 +10,19 @@ import {
   Select,
   VStack,
   Heading,
-  Grid,
-  GridItem,
   useToast,
   useColorModeValue,
   Container,
   Text,
   Input,
+  SimpleGrid,
+  InputGroup,
+  InputRightElement,
+  List,
+  ListItem,
 } from '@chakra-ui/react'
 import { jobGrades } from '@/data/jobGrades'
+import { ChevronDownIcon } from '@chakra-ui/icons'
 
 const malaysiaStatesAndDistricts: { [key: string]: string[] } = {
   Johor: ['Johor Bahru', 'Batu Pahat', 'Muar', 'Kluang', 'Segamat', 'Pontian', 'Kota Tinggi', 'Mersing', 'Kulai', 'Tangkak'],
@@ -52,14 +56,16 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
   const [expectedState, setExpectedState] = useState('')
   const [expectedDistrict, setExpectedDistrict] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showJobSuggestions, setShowJobSuggestions] = useState(false)
   const toast = useToast()
 
   const bgColor = useColorModeValue('gray.50', 'gray.900')
   const cardBgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const headingColor = useColorModeValue('purple.700', 'purple.300')
-  const subHeadingColor = useColorModeValue('teal.600', 'teal.300')
   const inputBgColor = useColorModeValue('white', 'gray.700')
+  const suggestionBgColor = useColorModeValue('gray.100', 'gray.700')
+  const suggestionHoverBgColor = useColorModeValue('gray.200', 'gray.600')
 
   const uniqueJobNames = useMemo(() => {
     const names = Array.from(new Set(jobGrades.map(job => job.name)))
@@ -172,7 +178,7 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
   }
 
   return (
-    <Box bg={bgColor} py={4}>
+    <Box bg={bgColor} py={8}>
       <Container maxW="container.md">
         <Box 
           as="form" 
@@ -181,75 +187,85 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
           borderRadius="lg" 
           borderWidth={1} 
           borderColor={borderColor} 
-          p={6}
-          boxShadow="md"
+          p={8}
+          boxShadow="lg"
         >
-          <VStack spacing={4} align="stretch">
-            <Heading as="h2" size="lg" color={headingColor} textAlign="center" mb={2}>Post a Job</Heading>
-            <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-              <GridItem colSpan={2}>
+          <VStack spacing={6} align="stretch">
+            <Heading as="h2" size="lg" color={headingColor} textAlign="center" mb={4}>Post a Job</Heading>
+            <FormControl isRequired position="relative">
+              <FormLabel htmlFor="jobName">Job Name</FormLabel>
+              <InputGroup>
+                <Input
+                  id="jobName"
+                  value={jobNameInput}
+                  onChange={(e) => {
+                    setJobNameInput(e.target.value)
+                    setShowJobSuggestions(true)
+                  }}
+                  onFocus={() => setShowJobSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowJobSuggestions(false), 200)}
+                  placeholder="Type to search job name"
+                  bg={inputBgColor}
+                  size="md"
+                />
+                <InputRightElement>
+                  <ChevronDownIcon />
+                </InputRightElement>
+              </InputGroup>
+              {showJobSuggestions && filteredJobNames.length > 0 && (
+                <List
+                  position="absolute"
+                  zIndex={1}
+                  w="100%"
+                  bg={suggestionBgColor}
+                  borderRadius="md"
+                  boxShadow="md"
+                  mt={1}
+                  maxH="200px"
+                  overflowY="auto"
+                >
+                  {filteredJobNames.map((name, index) => (
+                    <ListItem
+                      key={index}
+                      px={4}
+                      py={2}
+                      cursor="pointer"
+                      _hover={{ bg: suggestionHoverBgColor }}
+                      onClick={() => {
+                        setJobNameInput(name)
+                        setJobName(name)
+                        setShowJobSuggestions(false)
+                      }}
+                    >
+                      {name}
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel htmlFor="jobGrade">Job Grade</FormLabel>
+              <Select
+                id="jobGrade"
+                value={jobGrade}
+                onChange={(e) => setJobGrade(e.target.value)}
+                placeholder="Select job grade"
+                isDisabled={!jobName}
+                bg={inputBgColor}
+                size="md"
+              >
+                {jobGrades
+                  .filter(job => job.name === jobName)
+                  .map((job, index) => (
+                    <option key={index} value={job.grade}>{job.grade}</option>
+                  ))}
+              </Select>
+            </FormControl>
+            <SimpleGrid columns={2} spacing={4}>
+              <Box>
+                <Text fontWeight="bold" mb={2}>Current Location</Text>
                 <FormControl isRequired>
-                  <FormLabel htmlFor="jobName">Job Name</FormLabel>
-                  <Input
-                    id="jobName"
-                    value={jobNameInput}
-                    onChange={(e) => {
-                      setJobNameInput(e.target.value)
-                      setJobName('')
-                      setJobGrade('')
-                    }}
-                    placeholder="Type to search job name"
-                    bg={inputBgColor}
-                    size="sm"
-                  />
-                </FormControl>
-              </GridItem>
-              <GridItem colSpan={2}>
-                <FormControl isRequired>
-                  <FormLabel htmlFor="jobNameSelect">Select Job Name</FormLabel>
-                  <Select
-                    id="jobNameSelect"
-                    value={jobName}
-                    onChange={(e) => {
-                      setJobName(e.target.value)
-                      setJobGrade('')
-                    }}
-                    placeholder="Select job name"
-                    bg={inputBgColor}
-                    size="sm"
-                  >
-                    {filteredJobNames.map((name, index) => (
-                      <option key={index} value={name}>{name}</option>
-                    ))}
-                  </Select>
-                </FormControl>
-              </GridItem>
-              <GridItem colSpan={2}>
-                <FormControl isRequired>
-                  <FormLabel htmlFor="jobGrade">Job Grade</FormLabel>
-                  <Select
-                    id="jobGrade"
-                    value={jobGrade}
-                    onChange={(e) => setJobGrade(e.target.value)}
-                    placeholder="Select job grade"
-                    isDisabled={!jobName}
-                    bg={inputBgColor}
-                    size="sm"
-                  >
-                    {jobGrades
-                      .filter(job => job.name === jobName)
-                      .map((job, index) => (
-                        <option key={index} value={job.grade}>{job.grade}</option>
-                      ))}
-                  </Select>
-                </FormControl>
-              </GridItem>
-              <GridItem colSpan={2}>
-                <Text fontWeight="bold" color={subHeadingColor} fontSize="sm">Current Location</Text>
-              </GridItem>
-              <GridItem>
-                <FormControl isRequired>
-                  <FormLabel htmlFor="currentState" fontSize="sm">State</FormLabel>
+                  <FormLabel htmlFor="currentState">State</FormLabel>
                   <Select
                     id="currentState"
                     value={currentState}
@@ -259,17 +275,15 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
                     }}
                     placeholder="Select state"
                     bg={inputBgColor}
-                    size="sm"
+                    size="md"
                   >
                     {states.map((state, index) => (
                       <option key={index} value={state}>{state}</option>
                     ))}
                   </Select>
                 </FormControl>
-              </GridItem>
-              <GridItem>
-                <FormControl isRequired>
-                  <FormLabel htmlFor="currentDistrict" fontSize="sm">District</FormLabel>
+                <FormControl isRequired mt={4}>
+                  <FormLabel htmlFor="currentDistrict">District</FormLabel>
                   <Select
                     id="currentDistrict"
                     value={currentDistrict}
@@ -277,20 +291,18 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
                     placeholder="Select district"
                     isDisabled={!currentState}
                     bg={inputBgColor}
-                    size="sm"
+                    size="md"
                   >
                     {currentState && malaysiaStatesAndDistricts[currentState].map((district, index) => (
                       <option key={index} value={district}>{district}</option>
                     ))}
                   </Select>
                 </FormControl>
-              </GridItem>
-              <GridItem colSpan={2}>
-                <Text fontWeight="bold" color={subHeadingColor} fontSize="sm">Expected Location</Text>
-              </GridItem>
-              <GridItem>
+              </Box>
+              <Box>
+                <Text fontWeight="bold" mb={2}>Expected Location</Text>
                 <FormControl isRequired>
-                  <FormLabel htmlFor="expectedState" fontSize="sm">State</FormLabel>
+                  <FormLabel htmlFor="expectedState">State</FormLabel>
                   <Select
                     id="expectedState"
                     value={expectedState}
@@ -301,17 +313,15 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
                     placeholder="Select state"
                     isDisabled={!currentState}
                     bg={inputBgColor}
-                    size="sm"
+                    size="md"
                   >
                     {states.map((state, index) => (
                       <option key={index} value={state}>{state}</option>
                     ))}
                   </Select>
                 </FormControl>
-              </GridItem>
-              <GridItem>
-                <FormControl isRequired>
-                  <FormLabel htmlFor="expectedDistrict" fontSize="sm">District</FormLabel>
+                <FormControl isRequired mt={4}>
+                  <FormLabel htmlFor="expectedDistrict">District</FormLabel>
                   <Select
                     id="expectedDistrict"
                     value={expectedDistrict}
@@ -319,23 +329,23 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
                     placeholder="Select district"
                     isDisabled={!expectedState || (expectedState === currentState && expectedDistrict === currentDistrict)}
                     bg={inputBgColor}
-                    size="sm"
+                    size="md"
                   >
                     {expectedDistrictOptions.map((district, index) => (
                       <option key={index} value={district}>{district}</option>
                     ))}
                   </Select>
                 </FormControl>
-              </GridItem>
-            </Grid>
+              </Box>
+            </SimpleGrid>
             <Button
               type="submit"
               isLoading={loading}
               loadingText="Posting..."
               colorScheme="purple"
-              size="md"
+              size="lg"
               width="full"
-              mt={2}
+              mt={4}
             >
               Post Job
             </Button>
