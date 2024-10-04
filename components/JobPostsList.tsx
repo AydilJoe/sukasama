@@ -80,7 +80,6 @@ export default function JobPostsList() {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [multiWayMatches, setMultiWayMatches] = useState<MultiWayMatch[]>([])
   const [totalJobPostCount, setTotalJobPostCount] = useState<number>(0)
-  const [hasMatches, setHasMatches] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
   const toast = useToast()
 
@@ -95,6 +94,22 @@ export default function JobPostsList() {
     if (user) {
       setCurrentUserId(user.id)
     }
+  }, [])
+
+  const checkForMatches = useCallback((jobPosts: JobPost[], userId: string) => {
+    const userPosts = jobPosts.filter(post => post.user_id === userId)
+    const otherPosts = jobPosts.filter(post => post.user_id !== userId)
+
+    const matches = userPosts.some(userPost => 
+      otherPosts.some(post => 
+        post.job_name === userPost.job_name &&
+        post.job_grade === userPost.job_grade &&
+        post.current_location === userPost.expected_location &&
+        post.expected_location === userPost.current_location
+      )
+    )
+
+    setShowNotification(matches)
   }, [])
 
   const fetchAllJobPosts = useCallback(async () => {
@@ -116,7 +131,7 @@ export default function JobPostsList() {
       setTotalJobPostCount(count || 0)
 
       // Check for matches after fetching job posts
-      checkForMatches(data, currentUserId)
+      checkForMatches(data || [], currentUserId)
     } catch (error) {
       console.error('Error fetching job posts:', error)
       toast({
@@ -129,7 +144,7 @@ export default function JobPostsList() {
     } finally {
       setIsLoading(false)
     }
-  }, [currentUserId, toast])
+  }, [currentUserId, toast, checkForMatches])
 
   const fetchConnectRequests = useCallback(async () => {
     if (!currentUserId) return
@@ -156,23 +171,6 @@ export default function JobPostsList() {
       })
     }
   }, [currentUserId, toast])
-
-  const checkForMatches = useCallback((jobPosts: JobPost[], userId: string) => {
-    const userPosts = jobPosts.filter(post => post.user_id === userId)
-    const otherPosts = jobPosts.filter(post => post.user_id !== userId)
-
-    const matches = userPosts.some(userPost => 
-      otherPosts.some(post => 
-        post.job_name === userPost.job_name &&
-        post.job_grade === userPost.job_grade &&
-        post.current_location === userPost.expected_location &&
-        post.expected_location === userPost.current_location
-      )
-    )
-
-    setHasMatches(matches)
-    setShowNotification(matches)
-  }, [])
 
   const findMatches = useCallback((currentPost: JobPost, allPosts: JobPost[]) => {
     const [currentState, currentDistrict] = currentPost.current_location.split(', ')
