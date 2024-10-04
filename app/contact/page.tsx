@@ -90,8 +90,8 @@ export default function ContactUs() {
             </Box>
             <VStack spacing={4} align="stretch">
               <Heading as="h2" size="lg">Maklumat Hubungan</Heading>
-              <Text>E-mel: info@sukasama.com</Text>
-              <Text>Telefon: +60 3-1234 5678</Text>
+              <Text>E-mel: sukasamasukamy@gmail.com</Text>
+              <Text>Telefon: +60 17 - 6890159</Text>
               <Text>Alamat: Jalan Perdana, 50088 Kuala Lumpur, Malaysia</Text>
             </VStack>
           </VStack>
