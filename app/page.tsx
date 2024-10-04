@@ -28,7 +28,7 @@ import {
   TabPanel,
 } from '@chakra-ui/react'
 import { Session } from '@supabase/supabase-js'
-import { FaExchangeAlt, FaMapMarkedAlt, FaLock, FaNetworkWired } from 'react-icons/fa'
+import { FaExchangeAlt, FaMapMarkedAlt, FaLock } from 'react-icons/fa'
 import NextLink from 'next/link'
 
 export default function Home() {
