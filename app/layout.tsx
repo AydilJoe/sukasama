@@ -1,7 +1,12 @@
-'use client'
+import { Providers } from './providers'
+import { Inter } from 'next/font/google'
 
-import { ChakraProvider, ColorModeScript } from "@chakra-ui/react"
-import theme from "./theme"
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = {
+  title: 'SukaSamaSuka',
+  description: 'Job matching platform for Malaysian civil servants',
+}
 
 export default function RootLayout({
   children,
@@ -10,16 +15,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>SukaSamaSuka Job Board</title>
-      </head>
-      <body>
-        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-        <ChakraProvider theme={theme}>
-          {children}
-        </ChakraProvider>
+      <body className={inter.className}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
