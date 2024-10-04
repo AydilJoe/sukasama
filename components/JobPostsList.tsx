@@ -63,12 +63,6 @@ interface ConnectRequest {
   status: 'pending' | 'accepted'
 }
 
-interface MultiWayMatch {
-  participants: string[]
-  jobPosts: JobPost[]
-  connectRequests: ConnectRequest[]
-}
-
 export default function JobPostsList() {
   const [allJobPosts, setAllJobPosts] = useState<JobPost[]>([])
   const [userJobPosts, setUserJobPosts] = useState<JobPost[]>([])
@@ -78,7 +72,6 @@ export default function JobPostsList() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedMatchUserId, setSelectedMatchUserId] = useState<string | null>(null)
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [multiWayMatches, setMultiWayMatches] = useState<MultiWayMatch[]>([])
   const [totalJobPostCount, setTotalJobPostCount] = useState<number>(0)
   const [showNotification, setShowNotification] = useState(false)
   const toast = useToast()
@@ -210,49 +203,6 @@ export default function JobPostsList() {
     }
   }, [])
 
-  const findMultiWayMatches = useCallback(() => {
-    const matches: MultiWayMatch[] = []
-
-    for (const post of allJobPosts) {
-      const { exactMatches } = findMatches(post, allJobPosts)
-      
-      for (const match of exactMatches) {
-        const existingMatch = matches.find(m => 
-          m.participants.includes(post.user_id) && 
-          m.participants.includes(match.user_id)
-        )
-
-        if (existingMatch) {
-          if (!existingMatch.participants.includes(post.user_id)) {
-            existingMatch.participants.push(post.user_id)
-            existingMatch.jobPosts.push(post)
-          }
-          if (!existingMatch.participants.includes(match.user_id)) {
-            existingMatch.participants.push(match.user_id)
-            existingMatch.jobPosts.push(match)
-          }
-        } else {
-          matches.push({
-            participants: [post.user_id, match.user_id],
-            jobPosts: [post, match],
-            connectRequests: []
-          })
-        }
-      }
-    }
-
-    const multiWayMatches = matches.filter(match => match.participants.length >= 3)
-
-    for (const match of multiWayMatches) {
-      match.connectRequests = connectRequests.filter(request => 
-        match.participants.includes(request.sender_id) && 
-        match.participants.includes(request.receiver_id)
-      )
-    }
-
-    setMultiWayMatches(multiWayMatches)
-  }, [allJobPosts, connectRequests, findMatches])
-
   useEffect(() => {
     fetchCurrentUser()
   }, [fetchCurrentUser])
@@ -263,12 +213,6 @@ export default function JobPostsList() {
       fetchConnectRequests()
     }
   }, [currentUserId, fetchAllJobPosts, fetchConnectRequests])
-
-  useEffect(() => {
-    if (allJobPosts.length > 0 && connectRequests.length > 0) {
-      findMultiWayMatches()
-    }
-  }, [allJobPosts, connectRequests, findMultiWayMatches])
 
   const handleConnectRequest = useCallback((matchUserId: string) => {
     setSelectedMatchUserId(matchUserId)
@@ -515,55 +459,6 @@ export default function JobPostsList() {
     )
   }, [bgColor, borderColor, headingColor, textColor, findMatches, allJobPosts, renderMatchSection, handleDeletePost])
 
-  const renderMultiWayMatch = useCallback((match: MultiWayMatch, index: number) => {
-    return (
-      <Box 
-        key={index}
-        borderWidth={1} 
-        borderRadius="lg" 
-        p={6}
-        bg={bgColor}
-        borderColor={borderColor}
-        boxShadow="md"
-        transition="all 0.3s"
-        _hover={{ boxShadow: 'lg' }}
-      >
-        <Heading as="h3" size="md" color={headingColor} mb={4}>
-          {match.participants.length}-Way Match
-        </Heading>
-        <VStack align="stretch" spacing={4}>
-          {match.jobPosts.map(post => (
-            <HStack key={post.id} justifyContent="space-between" p={2} bg={cardBgColor} borderRadius="md">
-              <VStack align="start" spacing={0}>
-                <Text fontWeight="bold">{post.job_name} - {post.job_grade}</Text>
-                <Text fontSize="sm">{post.current_location} → {post.expected_location}</Text>
-              </VStack>
-            </HStack>
-          ))}
-        </VStack>
-        <Divider my={4} />
-        <Text fontWeight="bold" mb={2}>Connect Status:</Text>
-        <VStack align="stretch" spacing={2}>
-          {match.participants.map(participantId => {
-            if (participantId === currentUserId) return null
-            return (
-              <HStack key={participantId} justifyContent="space-between" p={2} bg={cardBgColor} borderRadius="md">
-                <Text fontSize="sm">User {participantId.slice(0, 8)}</Text>
-                {renderConnectButton(participantId)}
-              </HStack>
-            )
-          })}
-        </VStack>
-        {match.connectRequests.length === match.participants.length * (match.participants.length - 1) / 2 && 
-         match.connectRequests.every(req => req.status === 'accepted') && (
-          <Text mt={4} fontWeight="bold" color="green.500">
-            All participants have accepted. You can now contact each other.
-          </Text>
-        )}
-      </Box>
-    )
-  }, [bgColor, borderColor, headingColor, currentUserId, renderConnectButton, cardBgColor])
-
   const handleDonateClick = () => {
     window.open('https://bwtpgfxwnqquvqigtqkt.supabase.co/storage/v1/object/sign/qr/image-RwGVxYQGQAXsHu33vF09bR5uqOG9O2.avif?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJxci9pbWFnZS1Sd0dWeFlRR1FBWHNIdTMzdkYwOWJSNXVxT0c5TzIuYXZpZiIsImlhdCI6MTcyNzk1MjE5MCwiZXhwIjo4NjU3Mjc4NjU3OTB9.A5Y8Pn9ny5u-tS-FfoydU_b6m_2-y3Ja3bJ7gdKew0E&t=2024-10-03T10%3A43%3A10.546Z', '_blank')
   }
@@ -620,8 +515,6 @@ export default function JobPostsList() {
             {userJobPosts.map(renderJobPost)}
           </SimpleGrid>
         )}
-        <Divider my={4} />
-     
       </VStack>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ModalOverlay />
