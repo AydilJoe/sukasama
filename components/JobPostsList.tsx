@@ -30,8 +30,9 @@ import {
   Container,
   Icon,
   Stack,
+  IconButton,
 } from '@chakra-ui/react'
-import { ExternalLinkIcon, RepeatIcon, PhoneIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
+import { ExternalLinkIcon, RepeatIcon, PhoneIcon, CheckIcon, CloseIcon, DeleteIcon } from '@chakra-ui/icons'
 import { FaMapMarkerAlt } from 'react-icons/fa'
 
 interface JobPost {
@@ -400,6 +401,37 @@ export default function JobPostsList() {
     )
   }, [renderConnectButton, cardBgColor])
 
+  const handleDeletePost = useCallback(async (postId: string) => {
+    try {
+      const { error } = await supabase
+        .from('job_posts')
+        .delete()
+        .eq('id', postId)
+
+      if (error) throw error
+
+      toast({
+        title: 'Post deleted',
+        description: 'Your job post has been deleted successfully.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+
+      // Refresh the job posts
+      fetchAllJobPosts()
+    } catch (error) {
+      console.error('Error deleting job post:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to delete the job post. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+  }, [supabase, toast, fetchAllJobPosts])
+
   const renderJobPost = useCallback((post: JobPost) => {
     const matches = findMatches(post, allJobPosts)
     return (
@@ -417,7 +449,16 @@ export default function JobPostsList() {
         <VStack align="stretch" spacing={4}>
           <HStack justifyContent="space-between">
             <Heading as="h3" size="md" color={headingColor}>{post.job_name}</Heading>
-            <Badge colorScheme="blue" fontSize="0.8em" p={1}>{post.job_grade}</Badge>
+            <HStack>
+              <Badge colorScheme="blue" fontSize="0.8em" p={1}>{post.job_grade}</Badge>
+              <IconButton
+                aria-label="Delete post"
+                icon={<DeleteIcon />}
+                size="sm"
+                colorScheme="red"
+                onClick={() => handleDeletePost(post.id)}
+              />
+            </HStack>
           </HStack>
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             <Box>
@@ -441,7 +482,7 @@ export default function JobPostsList() {
         </VStack>
       </Box>
     )
-  }, [bgColor, borderColor, headingColor, textColor, findMatches, allJobPosts, renderMatchSection])
+  }, [bgColor, borderColor, headingColor, textColor, findMatches, allJobPosts, renderMatchSection, handleDeletePost])
 
   const renderMultiWayMatch = useCallback((match: MultiWayMatch, index: number) => {
     return (
