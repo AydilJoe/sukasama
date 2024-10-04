@@ -19,15 +19,21 @@ import {
   Icon,
   Button,
   Link,
-  Divider
+  Divider,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatGroup,
 } from '@chakra-ui/react'
 import { Session } from '@supabase/supabase-js'
-import { FaExchangeAlt, FaMapMarkedAlt, FaLock } from 'react-icons/fa'
+import { FaExchangeAlt, FaMapMarkedAlt, FaLock, FaUsers, FaBriefcase } from 'react-icons/fa'
 import NextLink from 'next/link'
 
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [totalJobPosts, setTotalJobPosts] = useState(0)
+  const [totalUsers, setTotalUsers] = useState(0)
 
   const bgColor = useColorModeValue('gray.50', 'gray.900')
   const textColor = useColorModeValue('gray.800', 'gray.100')
@@ -45,11 +51,34 @@ export default function Home() {
       setSession(session)
     })
 
+    fetchTotalCounts()
+
     return () => subscription.unsubscribe()
   }, [])
 
+  const fetchTotalCounts = async () => {
+    try {
+      const { count: jobPostCount, error: jobPostError } = await supabase
+        .from('job_posts')
+        .select('*', { count: 'exact', head: true })
+
+      if (jobPostError) throw jobPostError
+      setTotalJobPosts(jobPostCount || 0)
+
+      const { count: userCount, error: userError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+
+      if (userError) throw userError
+      setTotalUsers(userCount || 0)
+    } catch (error) {
+      console.error('Error fetching total counts:', error)
+    }
+  }
+
   const handlePostCreated = useCallback(() => {
     setRefreshKey(prevKey => prevKey + 1)
+    fetchTotalCounts()
   }, [])
 
   return (
@@ -77,6 +106,17 @@ export default function Home() {
               </VStack>
               {session && <LogoutButton />}
             </HStack>
+
+            <StatGroup>
+              <Stat>
+                <StatLabel>Jumlah Pos Kerja</StatLabel>
+                <StatNumber>{totalJobPosts}</StatNumber>
+              </Stat>
+              <Stat>
+                <StatLabel>Jumlah Pengguna</StatLabel>
+                <StatNumber>{totalUsers}</StatNumber>
+              </Stat>
+            </StatGroup>
 
             {!session ? (
               <VStack spacing={8} align="stretch">
