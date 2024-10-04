@@ -620,11 +620,8 @@ export default function JobPostsList() {
             {userJobPosts.map(renderJobPost)}
           </SimpleGrid>
         )}
-        <Divider my={8} />
-        <Heading as="h2" size="xl" color={headingColor} mb={6}>Multi-Way Matches</Heading>
-        <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-          {multiWayMatches.map(renderMultiWayMatch)}
-        </SimpleGrid>
+        <Divider my={4} />
+     
       </VStack>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ModalOverlay />
