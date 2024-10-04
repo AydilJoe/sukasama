@@ -407,9 +407,9 @@ export default function JobPostsList() {
         .from('job_posts')
         .delete()
         .eq('id', postId)
-
+  
       if (error) throw error
-
+  
       toast({
         title: 'Post deleted',
         description: 'Your job post has been deleted successfully.',
@@ -418,19 +418,19 @@ export default function JobPostsList() {
         isClosable: true,
       })
 
-      // Refresh the job posts
-      fetchAllJobPosts()
-    } catch (error) {
-      console.error('Error deleting job post:', error)
-      toast({
-        title: 'Error',
-        description: 'Failed to delete the job post. Please try again.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      })
-    }
-  }, [supabase, toast, fetchAllJobPosts])
+  // Refresh the job posts
+  fetchAllJobPosts()
+} catch (error) {
+  console.error('Error deleting job post:', error)
+  toast({
+    title: 'Error',
+    description: 'Failed to delete the job post. Please try again.',
+    status: 'error',
+    duration: 3000,
+    isClosable: true,
+  })
+}
+}, [toast, fetchAllJobPosts])
 
   const renderJobPost = useCallback((post: JobPost) => {
     const matches = findMatches(post, allJobPosts)
