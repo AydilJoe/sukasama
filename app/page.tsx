@@ -7,6 +7,7 @@ import JobPostForm from '@/components/JobPostForm'
 import JobPostsList from '@/components/JobPostsList'
 import LogoutButton from '@/components/LogoutButton'
 import SEO from '@/components/SEO'
+import ThreeWayMatcher from '@/components/ThreeWayMatcher'
 import { 
   Box, 
   Container, 
@@ -20,9 +21,14 @@ import {
   Button,
   Link,
   Divider,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
 } from '@chakra-ui/react'
 import { Session } from '@supabase/supabase-js'
-import { FaExchangeAlt, FaMapMarkedAlt, FaLock } from 'react-icons/fa'
+import { FaExchangeAlt, FaMapMarkedAlt, FaLock, FaNetworkWired } from 'react-icons/fa'
 import NextLink from 'next/link'
 
 export default function Home() {
@@ -133,30 +139,53 @@ export default function Home() {
               </VStack>
             ) : (
               <Box>
-                <Box
-                  bg={cardBgColor}
-                  borderRadius="lg"
-                  boxShadow="md"
-                  p={6}
-                  mb={8}
-                >
-                  <Heading as="h2" size="lg" mb={4}>
-                    Cipta Pos Kerja Baru
-                  </Heading>
-                  <JobPostForm onPostCreated={handlePostCreated} />
-                </Box>
-                <Divider my={8} />
-                <Box
-                  bg={cardBgColor}
-                  borderRadius="lg"
-                  boxShadow="md"
-                  p={6}
-                >
-                  <Heading as="h2" size="lg" mb={4}>
-                    Pos Kerja Terkini
-                  </Heading>
-                  <JobPostsList key={refreshKey} />
-                </Box>
+                <Tabs isFitted variant="enclosed">
+                  <TabList mb="1em">
+                    <Tab>Pos Kerja</Tab>
+                    <Tab>Padanan Tiga Hala</Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
+                      <Box
+                        bg={cardBgColor}
+                        borderRadius="lg"
+                        boxShadow="md"
+                        p={6}
+                        mb={8}
+                      >
+                        <Heading as="h2" size="lg" mb={4}>
+                          Cipta Pos Kerja Baru
+                        </Heading>
+                        <JobPostForm onPostCreated={handlePostCreated} />
+                      </Box>
+                      <Divider my={8} />
+                      <Box
+                        bg={cardBgColor}
+                        borderRadius="lg"
+                        boxShadow="md"
+                        p={6}
+                      >
+                        <Heading as="h2" size="lg" mb={4}>
+                          Pos Kerja Terkini
+                        </Heading>
+                        <JobPostsList key={refreshKey} />
+                      </Box>
+                    </TabPanel>
+                    <TabPanel>
+                      <Box
+                        bg={cardBgColor}
+                        borderRadius="lg"
+                        boxShadow="md"
+                        p={6}
+                      >
+                        <Heading as="h2" size="lg" mb={4}>
+                          Padanan Tiga Hala
+                        </Heading>
+                        <ThreeWayMatcher />
+                      </Box>
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
               </Box>
             )}
 
