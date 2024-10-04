@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { 
   Box, 
@@ -10,7 +10,6 @@ import {
   HStack, 
   Text, 
   Button,
-  Input,
   useColorModeValue,
   useToast,
   Flex,
@@ -20,28 +19,22 @@ import {
   StatLabel,
   StatNumber,
   StatHelpText,
-  List,
-  ListItem,
   Alert,
   AlertIcon,
   AlertTitle,
   AlertDescription,
   CloseButton,
 } from '@chakra-ui/react'
-import { FaSearch, FaExchangeAlt, FaUserTie, FaUsers, FaClipboardList } from 'react-icons/fa'
+import { FaSearch, FaExchangeAlt, FaClipboardList } from 'react-icons/fa'
 import { Session } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import SEO from '@/components/SEO'
-import { jobGrades } from '@/data/jobGrades'
 import JobPostsList from '@/components/JobPostsList'
 import JobPostForm from '@/components/JobPostForm'
 
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null)
-  const [jobSearch, setJobSearch] = useState('')
-  const [userCount, setUserCount] = useState<number>(0)
   const [postCount, setPostCount] = useState<number>(0)
-  const [hasMatches, setHasMatches] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const router = useRouter()
@@ -51,17 +44,6 @@ export default function Home() {
   const cardBgColor = useColorModeValue('white', 'gray.800')
   const textColor = useColorModeValue('gray.800', 'gray.100')
   const primaryColor = useColorModeValue('blue.600', 'blue.300')
-
-  const uniqueJobNames = useMemo(() => {
-    const names = Array.from(new Set(jobGrades.map(job => job.name)))
-    return names.sort((a, b) => a.localeCompare(b))
-  }, [])
-
-  const filteredJobs = useMemo(() => {
-    return uniqueJobNames.filter(name => 
-      name.toLowerCase().includes(jobSearch.toLowerCase())
-    )
-  }, [uniqueJobNames, jobSearch])
 
   const checkForMatches = useCallback(async (userId: string) => {
     try {
@@ -88,7 +70,6 @@ export default function Home() {
         )
       )
 
-      setHasMatches(matches)
       setShowNotification(matches)
     } catch (error) {
       console.error('Error checking for matches:', error)
@@ -117,24 +98,14 @@ export default function Home() {
 
   useEffect(() => {
     const fetchCounts = async () => {
-      const { count: userCount, error: userError } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-
-      if (userError) {
-        console.error('Error fetching user count:', userError)
-      } else {
-        setUserCount(userCount || 0)
-      }
-
-      const { count: postCount, error: postError } = await supabase
+      const { count, error } = await supabase
         .from('job_posts')
         .select('*', { count: 'exact', head: true })
 
-      if (postError) {
-        console.error('Error fetching post count:', postError)
+      if (error) {
+        console.error('Error fetching post count:', error)
       } else {
-        setPostCount(postCount || 0)
+        setPostCount(count || 0)
       }
     }
 
@@ -183,10 +154,10 @@ export default function Home() {
         ogImage="https://www.suka-sama-suka.com/og-image.jpg"
       />
       <Box minHeight="100vh" bg={bgColor} color={textColor}>
-        <Container maxW="container.xl" py={8}>
-          <VStack spacing={8} align="stretch">
+        <Container maxW="container.xl" py={6}>
+          <VStack spacing={6} align="stretch">
             <Flex justifyContent="space-between" alignItems="center" wrap="wrap">
-              <VStack align="flex-start" spacing={0}>
+              <VStack align="flex-start" spacing={2}>
                 <Heading as="h1" size="2xl" color={primaryColor}>
                   SukaSamaSuka
                 </Heading>
@@ -217,9 +188,7 @@ export default function Home() {
 
             {session ? (
               <VStack spacing={8} align="stretch">
-                
                 <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                  
                   <StatCard
                     icon={FaClipboardList}
                     title="Jumlah Pos Kerja"
