@@ -59,7 +59,7 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
   const [showJobSuggestions, setShowJobSuggestions] = useState(false)
   const toast = useToast()
 
-  const bgColor = useColorModeValue('gray.50', 'gray.900')
+  
   const cardBgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const headingColor = useColorModeValue('purple.700', 'purple.300')
