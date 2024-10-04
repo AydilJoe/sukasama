@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Container, Heading, Text, VStack, UnorderedList, ListItem, useColorModeValue } from '@chakra-ui/react'
+import { Box, Container, Heading, Text, VStack, useColorModeValue } from '@chakra-ui/react'
 import SEO from '@/components/SEO'
 
 export default function TermsOfUse() {
