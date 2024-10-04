@@ -1,7 +1,27 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  VStack,
+  Heading,
+  Text,
+  useToast,
+  InputGroup,
+  InputRightElement,
+  IconButton,
+  List,
+  ListItem,
+  ListIcon,
+  FormErrorMessage,
+} from '@chakra-ui/react'
+import { ViewIcon, ViewOffIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -25,6 +45,38 @@ import { ViewIcon, ViewOffIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false,
+  })
+  const toast = useToast()
+
+  useEffect(() => {
+    validatePassword(password)
+  }, [password])
+
+  const validatePassword = (password: string) => {
+    setPasswordValidation({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    })
+  }
+
+  const isPasswordValid = Object.values(passwordValidation).every(Boolean)
+  const doPasswordsMatch = password === confirmPassword
+
+  const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -108,9 +160,65 @@ export default function Auth() {
     } finally {
       setLoading(false)
     }
+
+    try {
+      if (isSignUp) {
+        if (!isPasswordValid) {
+          throw new Error('Please meet all password requirements')
+        }
+        if (!doPasswordsMatch) {
+          throw new Error('Passwords do not match')
+        }
+      }
+
+      let result;
+      if (isSignUp) {
+        result = await supabase.auth.signUp({ email, password })
+      } else {
+        result = await supabase.auth.signInWithPassword({ email, password })
+      }
+
+      const { error } = result
+
+      if (error) throw error
+
+      if (isSignUp) {
+        toast({
+          title: "Sign up successful",
+          description: "Please check your email to confirm your account.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        })
+      } else {
+        toast({
+          title: "Login successful",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        })
+      }
+    } catch (error) {
+      toast({
+        title: isSignUp ? "Sign up failed" : "Login failed",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={4}>
+      <form onSubmit={handleAuth}>
+        <VStack spacing={4} align="stretch" width="300px">
+          <Heading as="h1" size="xl" textAlign="center">
+            {isSignUp ? "Sign Up" : "Sign In"}
+          </Heading>
+          <FormControl isRequired>
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={4}>
       <form onSubmit={handleAuth}>
         <VStack spacing={4} align="stretch" width="300px">
@@ -125,8 +233,66 @@ export default function Auth() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
+              placeholder="your@email.com"
             />
           </FormControl>
+          <FormControl isRequired>
+            <FormLabel htmlFor="password">Password</FormLabel>
+            <InputGroup>
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  onClick={() => setShowPassword(!showPassword)}
+                  variant="ghost"
+                />
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
+          {isSignUp && (
+            <>
+              <FormControl isRequired isInvalid={!doPasswordsMatch && confirmPassword !== ''}>
+                <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+                <InputGroup>
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
+                  />
+                  <InputRightElement>
+                    <IconButton
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                      icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      variant="ghost"
+                    />
+                  </InputRightElement>
+                </InputGroup>
+                <FormErrorMessage>Passwords do not match</FormErrorMessage>
+              </FormControl>
+              <List spacing={1} fontSize="sm">
+                {Object.entries(passwordValidation).map(([key, valid]) => (
+                  <ListItem key={key}>
+                    <ListIcon as={valid ? CheckIcon : CloseIcon} color={valid ? "green.500" : "red.500"} />
+                    {key === 'length' ? 'At least 8 characters' : 
+                     key === 'uppercase' ? 'Contains uppercase letter' :
+                     key === 'lowercase' ? 'Contains lowercase letter' :
+                     key === 'number' ? 'Contains number' :
+                     'Contains special character'}
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          )}
           <FormControl isRequired>
             <FormLabel htmlFor="password">Password</FormLabel>
             <InputGroup>
@@ -188,11 +354,29 @@ export default function Auth() {
             type="submit"
             isLoading={loading}
             loadingText={isSignUp ? "Signing up..." : "Logging in..."}
+            loadingText={isSignUp ? "Signing up..." : "Logging in..."}
             colorScheme="blue"
+            isDisabled={isSignUp && (!isPasswordValid || !doPasswordsMatch)}
             isDisabled={isSignUp && (!isPasswordValid || !doPasswordsMatch)}
           >
             {isSignUp ? "Sign Up" : "Log In"}
+            {isSignUp ? "Sign Up" : "Log In"}
           </Button>
+          <Text textAlign="center">
+            {isSignUp ? "Already have an account?" : "Don't have an account?"}
+            {" "}
+            <Button
+              variant="link"
+              colorScheme="blue"
+              onClick={() => {
+                setIsSignUp(!isSignUp)
+                setPassword('')
+                setConfirmPassword('')
+              }}
+            >
+              {isSignUp ? "Log In" : "Sign Up"}
+            </Button>
+          </Text>
           <Text textAlign="center">
             {isSignUp ? "Already have an account?" : "Don't have an account?"}
             {" "}
