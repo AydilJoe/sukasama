@@ -178,9 +178,7 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
   }
 
   return (
-    <Box bg={bgColor} py={8}>
-      <Container maxW="container.md">
-        <Box 
+    <Box 
           as="form" 
           onSubmit={handleSubmit} 
           bg={cardBgColor} 
@@ -190,6 +188,8 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
           p={8}
           boxShadow="lg"
         >
+      <Container maxW="container.md">
+        
           <VStack spacing={6} align="stretch">
             <Heading as="h2" size="lg" color={headingColor} textAlign="center" mb={4}>Post a Job</Heading>
             <FormControl isRequired position="relative">
@@ -350,8 +350,8 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
               Post Job
             </Button>
           </VStack>
-        </Box>
+        
       </Container>
-    </Box>
+      </Box>
   )
 }
