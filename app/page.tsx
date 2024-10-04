@@ -60,6 +60,7 @@ export default function Home() {
         keywords={['job matching', 'Malaysian civil servants', 'job swap', 'government jobs', 'Malaysia', 'career change', 'penjawat awam', 'pertukaran kerja']}
         ogImage="https://www.suka-sama-suka.com/og-image.jpg"
       />
+      <meta name="google-site-verification" content="J6_bNMdHhm9jMxGJXJ4ugeErGUGU9iG23VscVVzDhWc" />
       <Box minHeight="100vh" bg={bgColor} color={textColor}>
         <Container maxW="container.xl" py={8}>
           <VStack spacing={12} align="stretch">
