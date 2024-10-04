@@ -26,14 +26,7 @@ export default function About() {
             </VStack>
 
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10} alignItems="center">
-              <Image
-                src="/placeholder.svg?height=400&width=600"
-                alt="Ilustrasi SukaSamaSuka"
-                width={600}
-                height={400}
-                objectFit="cover"
-                borderRadius="lg"
-              />
+
               <VStack align="start" spacing={6}>
                 <Heading as="h2" size="xl">
                   Cerita Kami
@@ -85,9 +78,7 @@ export default function About() {
               <Text fontSize="lg" maxW="2xl" mx="auto">
                 SukaSamaSuka bukan sekadar platform pertukaran kerja biasa. Kami memahami cabaran unik yang dihadapi oleh penjawat awam Malaysia dan telah mereka bentuk penyelesaian yang memenuhi keperluan khusus anda.
               </Text>
-              <Button as={NextLink} href="/auth" size="lg" colorScheme="blue">
-                Mulakan Perjalanan Anda
-              </Button>
+
             </VStack>
 
             <VStack spacing={6}>
