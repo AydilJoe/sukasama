@@ -573,7 +573,7 @@ export default function JobPostsList() {
           </SimpleGrid>
         )}
         <Divider my={8} />
-        <Heading as="h2" size="xl" color={headingColor} mb={6}>Multi-Way Matches</Heading>
+        <Heading as="h2" size="xl" color={headingColor} mb={6}>Multi-Way Matches *coming soon</Heading>
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
           {multiWayMatches.map(renderMultiWayMatch)}
         </SimpleGrid>
