@@ -54,7 +54,7 @@ export default function About() {
                   Visi Pengasas
                 </Heading>
                 <Text fontSize="md">
-                  "Saya bayangkan sebuah platform di mana setiap penjawat awam boleh dengan mudah mencari dan melaksanakan pertukaran kerja yang memenuhi aspirasi kerjaya dan kehidupan peribadi mereka. SukaSamaSuka adalah perwujudan visi ini - satu langkah ke arah perkhidmatan awam yang lebih dinamik dan responsif di Malaysia."
+                  &ldquo;Saya bayangkan sebuah platform di mana setiap penjawat awam boleh dengan mudah mencari dan melaksanakan pertukaran kerja yang memenuhi aspirasi kerjaya dan kehidupan peribadi mereka. SukaSamaSuka adalah perwujudan visi ini - satu langkah ke arah perkhidmatan awam yang lebih dinamik dan responsif di Malaysia.&rdquo;
                 </Text>
                 <Text fontWeight="bold">- Pengasas SukaSamaSuka</Text>
               </VStack>
