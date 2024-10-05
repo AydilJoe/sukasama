@@ -142,7 +142,7 @@ export default function Home() {
                 <Tabs isFitted variant="enclosed">
                   <TabList mb="1em">
                     <Tab>Pos Kerja</Tab>
-                    <Tab>Padanan tiga penjuru</Tab>
+                    <Tab>Padanan Tiga Penjuru</Tab>
                   </TabList>
                   <TabPanels>
                     <TabPanel>
