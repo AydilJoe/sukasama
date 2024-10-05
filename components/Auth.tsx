@@ -137,48 +137,41 @@ export default function Auth() {
   }
 
   return (
-    <Flex justifyContent="center" alignItems="center" minHeight="100vh" bg="gray.50">
+    <Flex justifyContent="center" alignItems="center" minHeight="100vh" bg="gray.100">
       <ScaleFade initialScale={0.9} in={true}>
         <Box
           bg="white"
-          p={8}
-          rounded="xl"
-          shadow="2xl"
-          w={["full", "400px"]}
-          maxWidth="400px"
-          transition="all 0.3s"
-          _hover={{ transform: 'translateY(-5px)', shadow: '2xl' }}
+          p={6}
+          rounded="lg"
+          shadow="md"
+          w={["full", "350px"]}
+          maxWidth="350px"
         >
           <form onSubmit={handleAuth}>
-            <VStack spacing={6} align="stretch">
-              <Heading as="h1" size="xl" textAlign="center" color="blue.600">
+            <VStack spacing={4} align="stretch">
+              <Heading as="h2" size="lg" textAlign="center" color="blue.600">
                 {isSignUp ? "Create Account" : "Welcome Back"}
               </Heading>
               <FormControl isRequired>
-                <FormLabel htmlFor="email">Email</FormLabel>
+                <FormLabel htmlFor="email" fontSize="sm">Email</FormLabel>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  bg="gray.50"
-                  border="none"
-                  _focus={{ bg: "white", boxShadow: "outline" }}
+                  size="sm"
                 />
               </FormControl>
               <FormControl isRequired>
-                <FormLabel htmlFor="password">Password</FormLabel>
-                <InputGroup>
+                <FormLabel htmlFor="password" fontSize="sm">Password</FormLabel>
+                <InputGroup size="sm">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    bg="gray.50"
-                    border="none"
-                    _focus={{ bg: "white", boxShadow: "outline" }}
                   />
                   <InputRightElement>
                     <IconButton
@@ -186,6 +179,7 @@ export default function Auth() {
                       icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
                       onClick={() => setShowPassword(!showPassword)}
                       variant="ghost"
+                      size="sm"
                     />
                   </InputRightElement>
                 </InputGroup>
@@ -194,17 +188,14 @@ export default function Auth() {
                 {isSignUp && (
                   <>
                     <FormControl isRequired isInvalid={!doPasswordsMatch && confirmPassword !== ''}>
-                      <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
-                      <InputGroup>
+                      <FormLabel htmlFor="confirmPassword" fontSize="sm">Confirm Password</FormLabel>
+                      <InputGroup size="sm">
                         <Input
                           id="confirmPassword"
                           type={showConfirmPassword ? "text" : "password"}
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="Confirm your password"
-                          bg="gray.50"
-                          border="none"
-                          _focus={{ bg: "white", boxShadow: "outline" }}
                         />
                         <InputRightElement>
                           <IconButton
@@ -212,12 +203,13 @@ export default function Auth() {
                             icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             variant="ghost"
+                            size="sm"
                           />
                         </InputRightElement>
                       </InputGroup>
                       <FormErrorMessage>Passwords do not match</FormErrorMessage>
                     </FormControl>
-                    <List spacing={1} fontSize="sm">
+                    <List spacing={1} fontSize="xs">
                       {Object.entries(passwordValidation).map(([key, valid]) => (
                         <ListItem key={key}>
                           <ListIcon as={valid ? CheckIcon : CloseIcon} color={valid ? "green.500" : "red.500"} />
@@ -238,12 +230,11 @@ export default function Auth() {
                 loadingText={isSignUp ? "Signing up..." : "Logging in..."}
                 colorScheme="blue"
                 isDisabled={isSignUp && (!isPasswordValid || !doPasswordsMatch)}
-                size="lg"
-                fontSize="md"
+                size="sm"
               >
                 {isSignUp ? "Create Account" : "Log In"}
               </Button>
-              <Text textAlign="center">
+              <Text fontSize="sm" textAlign="center">
                 {isSignUp ? "Already have an account?" : "Don't have an account?"}
                 {" "}
                 <Button
@@ -254,12 +245,13 @@ export default function Auth() {
                     setPassword('')
                     setConfirmPassword('')
                   }}
+                  size="sm"
                 >
                   {isSignUp ? "Log In" : "Sign Up"}
                 </Button>
               </Text>
               {!isSignUp && (
-                <Button variant="link" colorScheme="blue" onClick={onOpen}>
+                <Button variant="link" colorScheme="blue" onClick={onOpen} size="sm">
                   Forgot Password?
                 </Button>
               )}
