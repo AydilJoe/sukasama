@@ -179,7 +179,7 @@ export default function Home() {
                         p={6}
                       >
                         <Heading as="h2" size="lg" mb={4}>
-                          Padanan Tiga Hala
+                          Padanan Tiga Penjuru
                         </Heading>
                         <ThreeWayMatcher />
                       </Box>
