@@ -23,10 +23,12 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   useDisclosure,
+  Flex,
+  ScaleFade,
+  SlideFade,
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 
@@ -80,33 +82,19 @@ export default function Auth() {
         }
       }
 
-      let result;
-      if (isSignUp) {
-        result = await supabase.auth.signUp({ email, password })
-      } else {
-        result = await supabase.auth.signInWithPassword({ email, password })
-      }
-
-      const { error } = result
+      const { error } = isSignUp
+        ? await supabase.auth.signUp({ email, password })
+        : await supabase.auth.signInWithPassword({ email, password })
 
       if (error) throw error
 
-      if (isSignUp) {
-        toast({
-          title: "Sign up successful",
-          description: "Please check your email to confirm your account.",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-        })
-      } else {
-        toast({
-          title: "Login successful",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        })
-      }
+      toast({
+        title: isSignUp ? "Sign up successful" : "Login successful",
+        description: isSignUp ? "Please check your email to confirm your account." : undefined,
+        status: "success",
+        duration: isSignUp ? 5000 : 3000,
+        isClosable: true,
+      })
     } catch (error) {
       toast({
         title: isSignUp ? "Sign up failed" : "Login failed",
@@ -149,117 +137,143 @@ export default function Auth() {
   }
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={4}>
-      <form onSubmit={handleAuth}>
-        <VStack spacing={4} align="stretch" width="300px">
-          <Heading as="h1" size="xl" textAlign="center">
-            {isSignUp ? "Sign Up" : "Sign In"}
-          </Heading>
-          <FormControl isRequired>
-            <FormLabel htmlFor="email">Email</FormLabel>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-            />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel htmlFor="password">Password</FormLabel>
-            <InputGroup>
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-              />
-              <InputRightElement>
-                <IconButton
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                  onClick={() => setShowPassword(!showPassword)}
-                  variant="ghost"
+    <Flex justifyContent="center" alignItems="center" minHeight="100vh" bg="gray.50">
+      <ScaleFade initialScale={0.9} in={true}>
+        <Box
+          bg="white"
+          p={8}
+          rounded="xl"
+          shadow="2xl"
+          w={["full", "400px"]}
+          maxWidth="400px"
+          transition="all 0.3s"
+          _hover={{ transform: 'translateY(-5px)', shadow: '2xl' }}
+        >
+          <form onSubmit={handleAuth}>
+            <VStack spacing={6} align="stretch">
+              <Heading as="h1" size="xl" textAlign="center" color="blue.600">
+                {isSignUp ? "Create Account" : "Welcome Back"}
+              </Heading>
+              <FormControl isRequired>
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  bg="gray.50"
+                  border="none"
+                  _focus={{ bg: "white", boxShadow: "outline" }}
                 />
-              </InputRightElement>
-            </InputGroup>
-          </FormControl>
-          {isSignUp && (
-            <>
-              <FormControl isRequired isInvalid={!doPasswordsMatch && confirmPassword !== ''}>
-                <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel htmlFor="password">Password</FormLabel>
                 <InputGroup>
                   <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    bg="gray.50"
+                    border="none"
+                    _focus={{ bg: "white", boxShadow: "outline" }}
                   />
                   <InputRightElement>
                     <IconButton
-                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                      icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                      onClick={() => setShowPassword(!showPassword)}
                       variant="ghost"
                     />
                   </InputRightElement>
                 </InputGroup>
-                <FormErrorMessage>Passwords do not match</FormErrorMessage>
               </FormControl>
-              <List spacing={1} fontSize="sm">
-                {Object.entries(passwordValidation).map(([key, valid]) => (
-                  <ListItem key={key}>
-                    <ListIcon as={valid ? CheckIcon : CloseIcon} color={valid ? "green.500" : "red.500"} />
-                    {key === 'length' ? 'At least 8 characters' : 
-                     key === 'uppercase' ? 'Contains uppercase letter' :
-                     key === 'lowercase' ? 'Contains lowercase letter' :
-                     key === 'number' ? 'Contains number' :
-                     'Contains special character'}
-                  </ListItem>
-                ))}
-              </List>
-            </>
-          )}
-          <Button
-            type="submit"
-            isLoading={loading}
-            loadingText={isSignUp ? "Signing up..." : "Logging in..."}
-            colorScheme="blue"
-            isDisabled={isSignUp && (!isPasswordValid || !doPasswordsMatch)}
-          >
-            {isSignUp ? "Sign Up" : "Log In"}
-          </Button>
-          <Text textAlign="center">
-            {isSignUp ? "Already have an account?" : "Don't have an account?"}
-            {" "}
-            <Button
-              variant="link"
-              colorScheme="blue"
-              onClick={() => {
-                setIsSignUp(!isSignUp)
-                setPassword('')
-                setConfirmPassword('')
-              }}
-            >
-              {isSignUp ? "Log In" : "Sign Up"}
-            </Button>
-          </Text>
-          {!isSignUp && (
-            <Button variant="link" colorScheme="blue" onClick={onOpen}>
-              Forgot Password?
-            </Button>
-          )}
-        </VStack>
-      </form>
+              <SlideFade in={isSignUp} offsetY="20px">
+                {isSignUp && (
+                  <>
+                    <FormControl isRequired isInvalid={!doPasswordsMatch && confirmPassword !== ''}>
+                      <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+                      <InputGroup>
+                        <Input
+                          id="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm your password"
+                          bg="gray.50"
+                          border="none"
+                          _focus={{ bg: "white", boxShadow: "outline" }}
+                        />
+                        <InputRightElement>
+                          <IconButton
+                            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                            icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            variant="ghost"
+                          />
+                        </InputRightElement>
+                      </InputGroup>
+                      <FormErrorMessage>Passwords do not match</FormErrorMessage>
+                    </FormControl>
+                    <List spacing={1} fontSize="sm">
+                      {Object.entries(passwordValidation).map(([key, valid]) => (
+                        <ListItem key={key}>
+                          <ListIcon as={valid ? CheckIcon : CloseIcon} color={valid ? "green.500" : "red.500"} />
+                          {key === 'length' ? 'At least 8 characters' : 
+                           key === 'uppercase' ? 'Contains uppercase letter' :
+                           key === 'lowercase' ? 'Contains lowercase letter' :
+                           key === 'number' ? 'Contains number' :
+                           'Contains special character'}
+                        </ListItem>
+                      ))}
+                    </List>
+                  </>
+                )}
+              </SlideFade>
+              <Button
+                type="submit"
+                isLoading={loading}
+                loadingText={isSignUp ? "Signing up..." : "Logging in..."}
+                colorScheme="blue"
+                isDisabled={isSignUp && (!isPasswordValid || !doPasswordsMatch)}
+                size="lg"
+                fontSize="md"
+              >
+                {isSignUp ? "Create Account" : "Log In"}
+              </Button>
+              <Text textAlign="center">
+                {isSignUp ? "Already have an account?" : "Don't have an account?"}
+                {" "}
+                <Button
+                  variant="link"
+                  colorScheme="blue"
+                  onClick={() => {
+                    setIsSignUp(!isSignUp)
+                    setPassword('')
+                    setConfirmPassword('')
+                  }}
+                >
+                  {isSignUp ? "Log In" : "Sign Up"}
+                </Button>
+              </Text>
+              {!isSignUp && (
+                <Button variant="link" colorScheme="blue" onClick={onOpen}>
+                  Forgot Password?
+                </Button>
+              )}
+            </VStack>
+          </form>
+        </Box>
+      </ScaleFade>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Reset Password</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody pb={6}>
             <FormControl>
               <FormLabel>Email</FormLabel>
               <Input
@@ -269,15 +283,12 @@ export default function Auth() {
                 placeholder="Enter your email"
               />
             </FormControl>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleResetPassword} isLoading={loading}>
+            <Button colorScheme="blue" mt={4} onClick={handleResetPassword} isLoading={loading} w="full">
               Send Reset Email
             </Button>
-            <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          </ModalFooter>
+          </ModalBody>
         </ModalContent>
       </Modal>
-    </Box>
+    </Flex>
   )
 }
