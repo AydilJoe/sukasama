@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { sendEmail } from '@/utils/email'
 import {
   Box,
   Button,
@@ -24,6 +23,7 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
+  ModalFooter,
   ModalBody,
   ModalCloseButton,
   useDisclosure,
@@ -80,19 +80,33 @@ export default function Auth() {
         }
       }
 
-      const { error } = isSignUp
-        ? await supabase.auth.signUp({ email, password })
-        : await supabase.auth.signInWithPassword({ email, password })
+      let result;
+      if (isSignUp) {
+        result = await supabase.auth.signUp({ email, password })
+      } else {
+        result = await supabase.auth.signInWithPassword({ email, password })
+      }
+
+      const { error } = result
 
       if (error) throw error
 
-      toast({
-        title: isSignUp ? "Sign up successful" : "Login successful",
-        description: isSignUp ? "Please check your email to confirm your account." : undefined,
-        status: "success",
-        duration: isSignUp ? 5000 : 3000,
-        isClosable: true,
-      })
+      if (isSignUp) {
+        toast({
+          title: "Sign up successful",
+          description: "Please check your email to confirm your account.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        })
+      } else {
+        toast({
+          title: "Login successful",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        })
+      }
     } catch (error) {
       toast({
         title: isSignUp ? "Sign up failed" : "Login failed",
@@ -106,35 +120,26 @@ export default function Auth() {
     }
   }
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleResetPassword = async () => {
     setLoading(true)
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
       })
       if (error) throw error
-
-      await sendEmail(
-        resetEmail,
-        'Reset Your Password',
-        'Click the link in this email to reset your password.',
-        '<p>Click the link in this email to reset your password.</p>'
-      )
-
       toast({
-        title: 'Password reset email sent',
-        description: 'Check your email for the password reset link.',
-        status: 'success',
+        title: "Password reset email sent",
+        description: "Please check your email for further instructions.",
+        status: "success",
         duration: 5000,
         isClosable: true,
       })
       onClose()
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'An error occurred',
-        status: 'error',
+        title: "Failed to send reset email",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        status: "error",
         duration: 5000,
         isClosable: true,
       })
@@ -144,9 +149,9 @@ export default function Auth() {
   }
 
   return (
-    <Box maxWidth="400px" margin="auto">
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={4}>
       <form onSubmit={handleAuth}>
-        <VStack spacing={4} align="stretch">
+        <VStack spacing={4} align="stretch" width="300px">
           <Heading as="h1" size="xl" textAlign="center">
             {isSignUp ? "Sign Up" : "Sign In"}
           </Heading>
@@ -255,22 +260,22 @@ export default function Auth() {
           <ModalHeader>Reset Password</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <form onSubmit={handleResetPassword}>
-              <FormControl>
-                <FormLabel>Email</FormLabel>
-                <Input
-                  type="email"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                />
-              </FormControl>
-              <Button type="submit" colorScheme="blue" mt={4} isLoading={loading}>
-                Send Reset Email
-              </Button>
-            </form>
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+            </FormControl>
           </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={handleResetPassword} isLoading={loading}>
+              Send Reset Email
+            </Button>
+            <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </Box>
