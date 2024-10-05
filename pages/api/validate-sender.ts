@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const result = await mailjet
       .post('sender', { version: 'v3' })
-      .id("6484969524")
+      .id("aydil@suka-sama-suka.com")
       .action('validate')
       .request()
 
