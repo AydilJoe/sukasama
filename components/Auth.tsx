@@ -19,6 +19,14 @@ import {
   ListItem,
   ListIcon,
   FormErrorMessage,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 
@@ -38,6 +46,8 @@ export default function Auth() {
     special: false,
   })
   const toast = useToast()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [resetEmail, setResetEmail] = useState('')
 
   useEffect(() => {
     validatePassword(password)
@@ -100,6 +110,34 @@ export default function Auth() {
     } catch (error) {
       toast({
         title: isSignUp ? "Sign up failed" : "Login failed",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetPassword = async () => {
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      if (error) throw error
+      toast({
+        title: "Password reset email sent",
+        description: "Please check your email for further instructions.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      })
+      onClose()
+    } catch (error) {
+      toast({
+        title: "Failed to send reset email",
         description: error instanceof Error ? error.message : "An unknown error occurred",
         status: "error",
         duration: 5000,
@@ -208,8 +246,38 @@ export default function Auth() {
               {isSignUp ? "Log In" : "Sign Up"}
             </Button>
           </Text>
+          {!isSignUp && (
+            <Button variant="link" colorScheme="blue" onClick={onOpen}>
+              Forgot Password?
+            </Button>
+          )}
         </VStack>
       </form>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Reset Password</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={handleResetPassword} isLoading={loading}>
+              Send Reset Email
+            </Button>
+            <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   )
 }
