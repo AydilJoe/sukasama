@@ -26,6 +26,7 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  CloseButton,
 } from '@chakra-ui/react'
 import { Session } from '@supabase/supabase-js'
 import { FaExchangeAlt, FaMapMarkedAlt, FaLock } from 'react-icons/fa'
