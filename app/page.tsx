@@ -66,7 +66,7 @@ const AnimatedBackground = () => {
             y: [0, Math.random() * 200 - 100],
             x: [0, Math.random() * 200 - 100],
             scale: [1, Math.random() * 1.5 + 0.5],
-            opacity: [0, 0.3, 0],
+            opacity: [0, 1, 0],
           }}
           transition={{
             duration: Math.random() * 10 + 10,
@@ -83,7 +83,7 @@ export default function Home() {
   const [session, setSession] = useState<Session | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const bgColor = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(26, 32, 44, 0.8)')
+  const bgColor = useColorModeValue('rgba(255, 255, 255, 0.5)', 'rgba(26, 32, 44, 0.5)')
   const textColor = useColorModeValue('gray.800', 'gray.100')
   const cardBgColor = useColorModeValue('white', 'gray.700')
   const primaryColor = useColorModeValue('blue.500', 'blue.300')
@@ -116,8 +116,8 @@ export default function Home() {
       />
       <meta name="google-site-verification" content="J6_bNMdHhm9jMxGJXJ4ugeErGUGU9iG23VscVVzDhWc" />
       <AnimatedBackground />
-      <Box minHeight="100vh" bg={bgColor} color={textColor} position="relative" zIndex={1} backdropFilter="blur(5px)">
-        <Container maxW="container.xl" py={8}>
+      <Box minHeight="100vh" bg={bgColor} color={textColor} position="relative" zIndex={3} backdropFilter="blur(0px)">
+        <Container maxW="container.xl" py={6}>
           <VStack spacing={12} align="stretch">
             <HStack justifyContent="space-between" alignItems="center" wrap="wrap">
               <VStack align="flex-start" spacing={0}>
