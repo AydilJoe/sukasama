@@ -26,7 +26,6 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  CloseButton,
 } from '@chakra-ui/react'
 import { Session } from '@supabase/supabase-js'
 import { FaExchangeAlt, FaMapMarkedAlt, FaLock } from 'react-icons/fa'
@@ -179,7 +178,7 @@ export default function Home() {
               Makin ramai yang sertai, makin tinggi peluang anda menemui padanan sempurna. Kongsi sekarang dan bersama-sama kita wujudkan komuniti penjawat awam yang lebih gembira dan produktif!
                     #SukaSamaSuka #KerjayaImpian #PenjawatAwamMalaysia 
             </AlertDescription>
-            <CloseButton position="absolute" right="8px" top="8px" onClick={() => setShowNotification(false)} />
+            
           </Alert>
 
                     <Text textAlign="center">
