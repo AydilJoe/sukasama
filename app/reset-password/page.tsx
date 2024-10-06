@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import {
   Box,
   Button,
@@ -38,6 +38,8 @@ export default function ResetPassword() {
   })
   const toast = useToast()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const supabase = createClientComponentClient()
 
   useEffect(() => {
     validatePassword(password)
@@ -68,7 +70,17 @@ export default function ResetPassword() {
         throw new Error('Passwords do not match')
       }
 
-      const { error } = await supabase.auth.updateUser({ password })
+      const token_hash = searchParams?.get('token_hash')
+      const email = searchParams?.get('email')
+
+      if (!token_hash || !email) {
+        throw new Error('Reset token hash or email is missing')
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        password,
+        token_hash,
+      })
 
       if (error) throw error
 
@@ -80,8 +92,9 @@ export default function ResetPassword() {
         isClosable: true,
       })
 
-      router.push('/') // Redirect to home page or login page
+      router.push('/login')
     } catch (error) {
+      console.error('Password reset error:', error)
       toast({
         title: "Password reset failed",
         description: error instanceof Error ? error.message : "An unknown error occurred",
