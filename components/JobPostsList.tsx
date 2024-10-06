@@ -2,18 +2,19 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { 
-  Box, 
-  VStack, 
-  Heading, 
-  Text, 
-  Badge, 
-  SimpleGrid, 
-  Divider, 
-  useColorModeValue, 
-  Button, 
-  HStack, 
-  Flex, 
+import { sendJobMatchEmail } from '@/lib/mailjet'
+import {
+  Box,
+  VStack,
+  Heading,
+  Text,
+  Badge,
+  SimpleGrid,
+  Divider,
+  useColorModeValue,
+  Button,
+  HStack,
+  Flex,
   useToast,
   Modal,
   ModalOverlay,
@@ -89,20 +90,50 @@ export default function JobPostsList() {
     }
   }, [])
 
-  const checkForMatches = useCallback((jobPosts: JobPost[], userId: string) => {
+  const checkForMatches = useCallback(async (jobPosts: JobPost[], userId: string) => {
     const userPosts = jobPosts.filter(post => post.user_id === userId)
     const otherPosts = jobPosts.filter(post => post.user_id !== userId)
 
-    const matches = userPosts.some(userPost => 
-      otherPosts.some(post => 
+    let totalMatches = 0
+    const matchedJobs: { [key: string]: number } = {}
+
+    for (const userPost of userPosts) {
+      const matches = otherPosts.filter(post => 
         post.job_name === userPost.job_name &&
         post.job_grade === userPost.job_grade &&
         post.current_location === userPost.expected_location &&
         post.expected_location === userPost.current_location
       )
-    )
 
-    setShowNotification(matches)
+      if (matches.length > 0) {
+        totalMatches += matches.length
+        matchedJobs[userPost.job_name] = (matchedJobs[userPost.job_name] || 0) + matches.length
+      }
+    }
+
+    if (totalMatches > 0) {
+      setShowNotification(true)
+
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', userId)
+        .single()
+
+      if (userError) {
+        console.error('Error fetching user email:', userError)
+        return
+      }
+
+      if (userData && userData.email) {
+        for (const [jobName, matchCount] of Object.entries(matchedJobs)) {
+          const jobPost = userPosts.find(post => post.job_name === jobName)
+          if (jobPost) {
+            await sendJobMatchEmail(userData.email, jobPost.job_name, jobPost.job_grade, matchCount)
+          }
+        }
+      }
+    }
   }, [])
 
   const fetchAllJobPosts = useCallback(async () => {
@@ -123,8 +154,7 @@ export default function JobPostsList() {
       setUserJobPosts(data.filter(post => post.user_id === currentUserId) || [])
       setTotalJobPostCount(count || 0)
 
-      // Check for matches after fetching job posts
-      checkForMatches(data || [], currentUserId)
+      await checkForMatches(data || [], currentUserId)
     } catch (error) {
       console.error('Error fetching job posts:', error)
       toast({
@@ -393,7 +423,6 @@ export default function JobPostsList() {
         isClosable: true,
       })
 
-      // Refresh the job posts
       fetchAllJobPosts()
     } catch (error) {
       console.error('Error deleting job post:', error)
