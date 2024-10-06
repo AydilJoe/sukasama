@@ -73,11 +73,7 @@ export default function ResetPasswordForm() {
         throw new Error('Passwords do not match')
       }
 
-      if (!searchParams) {
-        throw new Error('No search params available')
-      }
-
-      const token = searchParams.get('token')
+      const token = searchParams?.get('token')
       if (!token) {
         throw new Error('Reset token is missing')
       }
