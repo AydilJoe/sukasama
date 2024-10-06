@@ -71,16 +71,14 @@ export default function ResetPasswordForm() {
       }
 
       const token_hash = searchParams?.get('token_hash')
-      const email = searchParams?.get('email')
 
-      if (!token_hash || !email) {
-        throw new Error('Missing token_hash or email in URL')
+      if (!token_hash) {
+        throw new Error('Missing token_hash in URL')
       }
 
       const { error: verifyError } = await supabase.auth.verifyOtp({
         token_hash,
         type: 'recovery',
-        email,
       })
 
       if (verifyError) throw verifyError
