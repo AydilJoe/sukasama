@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import {
   Box,
@@ -41,24 +41,8 @@ export default function ResetPasswordForm() {
   })
   const toast = useToast()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClientComponentClient()
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        toast({
-          title: "No active session",
-          description: "Please log in to reset your password.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        })
-        router.push('/login')
-      }
-    }
-    checkSession()
-  }, [])
 
   useEffect(() => {
     validatePassword(password)
@@ -77,14 +61,6 @@ export default function ResetPasswordForm() {
   const isPasswordValid = Object.values(passwordValidation).every(Boolean)
   const doPasswordsMatch = password === confirmPassword
 
-  const refreshSession = async () => {
-    const { data, error } = await supabase.auth.refreshSession()
-    if (error) {
-      throw new Error('Failed to refresh session')
-    }
-    return data.session
-  }
-
   const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
@@ -97,9 +73,16 @@ export default function ResetPasswordForm() {
         throw new Error('Passwords do not match')
       }
 
-      await refreshSession()
+      if (!searchParams) {
+        throw new Error('No search params available')
+      }
 
-      const { error } = await supabase.auth.updateUser({ password })
+      const token = searchParams.get('token')
+      if (!token) {
+        throw new Error('Reset token is missing')
+      }
+
+      const { error } = await supabase.auth.updateUser({ password: password })
 
       if (error) throw error
 
