@@ -67,34 +67,38 @@ export default function Auth() {
   const doPasswordsMatch = password === confirmPassword
 
   const insertOrUpdateProfile = async (userId: string, userEmail: string) => {
-    const { data: existingProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', userId)
-      .single()
-
-    if (profileError && profileError.code !== 'PGRST116') {
-      console.error('Error checking existing profile:', profileError)
-      return
-    }
-
-    if (!existingProfile) {
-      const { error: insertError } = await supabase
+    try {
+      const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
-        .insert({ id: userId, email: userEmail })
-
-      if (insertError) {
-        console.error('Error inserting profile:', insertError)
-      }
-    } else {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ email: userEmail })
+        .select('id, email')
         .eq('id', userId)
+        .maybeSingle()
 
-      if (updateError) {
-        console.error('Error updating profile:', updateError)
+      if (profileError) {
+        console.error('Error checking existing profile:', profileError)
+        return
       }
+
+      if (!existingProfile) {
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({ id: userId, email: userEmail })
+
+        if (insertError) {
+          console.error('Error inserting profile:', insertError)
+        }
+      } else if (existingProfile.email !== userEmail) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ email: userEmail })
+          .eq('id', userId)
+
+        if (updateError) {
+          console.error('Error updating profile:', updateError)
+        }
+      }
+    } catch (error) {
+      console.error('Error in insertOrUpdateProfile:', error)
     }
   }
 
@@ -144,6 +148,7 @@ export default function Auth() {
         })
       }
     } catch (error) {
+      console.error('Auth error:', error)
       toast({
         title: isSignUp ? "Sign up failed" : "Login failed",
         description: error instanceof Error ? error.message : "An unknown error occurred",
@@ -172,6 +177,7 @@ export default function Auth() {
       })
       onClose()
     } catch (error) {
+      console.error('Reset password error:', error)
       toast({
         title: "Failed to send reset email",
         description: error instanceof Error ? error.message : "An unknown error occurred",
