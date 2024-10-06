@@ -20,6 +20,9 @@ import {
   ListItem,
   ListIcon,
   FormErrorMessage,
+  Container,
+  Card,
+  CardBody,
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 
@@ -95,79 +98,85 @@ export default function ResetPassword() {
   }
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={4}>
-      <form onSubmit={handleResetPassword}>
-        <VStack spacing={4} align="stretch" width="300px">
-          <Heading as="h1" size="xl" textAlign="center">
-            Reset Password
-          </Heading>
-          <Text textAlign="center">
-            Enter your new password below.
-          </Text>
-          <FormControl isRequired>
-            <FormLabel htmlFor="password">New Password</FormLabel>
-            <InputGroup>
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your new password"
-              />
-              <InputRightElement>
-                <IconButton
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                  onClick={() => setShowPassword(!showPassword)}
-                  variant="ghost"
-                />
-              </InputRightElement>
-            </InputGroup>
-          </FormControl>
-          <FormControl isRequired isInvalid={!doPasswordsMatch && confirmPassword !== ''}>
-            <FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
-            <InputGroup>
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm your new password"
-              />
-              <InputRightElement>
-                <IconButton
-                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                  icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  variant="ghost"
-                />
-              </InputRightElement>
-            </InputGroup>
-            <FormErrorMessage>Passwords do not match</FormErrorMessage>
-          </FormControl>
-          <List spacing={1} fontSize="sm">
-            {Object.entries(passwordValidation).map(([key, valid]) => (
-              <ListItem key={key}>
-                <ListIcon as={valid ? CheckIcon : CloseIcon} color={valid ? "green.500" : "red.500"} />
-                {key === 'length' ? 'At least 8 characters' : 
-                 key === 'uppercase' ? 'Contains uppercase letter' :
-                 key === 'lowercase' ? 'Contains lowercase letter' :
-                 key === 'number' ? 'Contains number' :
-                 'Contains special character'}
-              </ListItem>
-            ))}
-          </List>
-          <Button
-            type="submit"
-            isLoading={loading}
-            loadingText="Resetting Password..."
-            colorScheme="blue"
-            isDisabled={!isPasswordValid || !doPasswordsMatch}
-          >
-            Reset Password
-          </Button>
-        </VStack>
-      </form>
-    </Box>
+    <Container maxW="container.sm" centerContent>
+      <Box width="100%" py={8}>
+        <Card>
+          <CardBody>
+            <form onSubmit={handleResetPassword}>
+              <VStack spacing={6} align="stretch">
+                <Heading as="h1" size="xl" textAlign="center">
+                  Reset Password
+                </Heading>
+                <Text textAlign="center">
+                  Enter your new password below.
+                </Text>
+                <FormControl isRequired>
+                  <FormLabel htmlFor="password">New Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your new password"
+                    />
+                    <InputRightElement>
+                      <IconButton
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                        onClick={() => setShowPassword(!showPassword)}
+                        variant="ghost"
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+                <FormControl isRequired isInvalid={!doPasswordsMatch && confirmPassword !== ''}>
+                  <FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your new password"
+                    />
+                    <InputRightElement>
+                      <IconButton
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                        icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        variant="ghost"
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                  <FormErrorMessage>Passwords do not match</FormErrorMessage>
+                </FormControl>
+                <List spacing={1} fontSize="sm">
+                  {Object.entries(passwordValidation).map(([key, valid]) => (
+                    <ListItem key={key}>
+                      <ListIcon as={valid ? CheckIcon : CloseIcon} color={valid ? "green.500" : "red.500"} />
+                      {key === 'length' ? 'At least 8 characters' : 
+                       key === 'uppercase' ? 'Contains uppercase letter' :
+                       key === 'lowercase' ? 'Contains lowercase letter' :
+                       key === 'number' ? 'Contains number' :
+                       'Contains special character'}
+                    </ListItem>
+                  ))}
+                </List>
+                <Button
+                  type="submit"
+                  isLoading={loading}
+                  loadingText="Resetting Password..."
+                  colorScheme="blue"
+                  isDisabled={!isPasswordValid || !doPasswordsMatch}
+                >
+                  Reset Password
+                </Button>
+              </VStack>
+            </form>
+          </CardBody>
+        </Card>
+      </Box>
+    </Container>
   )
 }
