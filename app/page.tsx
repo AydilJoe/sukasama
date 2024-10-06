@@ -165,16 +165,16 @@ export default function Home() {
                       Mulakan Perjalanan Kerjaya Baru Anda
                     </Heading>
                     <Text textAlign="center">
-                    "Rakan-rakan penjawat awam, peluang emas menanti anda! 🌟
+                    Rakan-rakan penjawat awam, peluang emas menanti anda! 
 
 Jom sertai SukaSamaSuka.com - platform pertukaran kerja yang bakal mengubah masa depan kerjaya anda!
 
 Makin ramai yang sertai, makin tinggi peluang anda menemui padanan sempurna. Kongsi sekarang dan bersama-sama kita wujudkan komuniti penjawat awam yang lebih gembira dan produktif!
 
-#SukaSamaSuka #KerjayaImpian #PenjawatAwamMalaysia" 
+#SukaSamaSuka #KerjayaImpian #PenjawatAwamMalaysia 
                     </Text>
                     <Text textAlign="center">
-                    #PertukararKerjaMudah #SukaSamaSuka"
+                    #PertukararKerjaMudah #SukaSamaSuka
                     </Text>
                     
 
