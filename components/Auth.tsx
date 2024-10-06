@@ -94,7 +94,7 @@ export default function Auth() {
       if (isSignUp) {
         toast({
           title: "Sign up successful",
-          description: "Please check your email to confirm your account.",
+          description: "Ready for your new adventure.",
           status: "success",
           duration: 5000,
           isClosable: true,
