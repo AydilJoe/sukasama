@@ -95,7 +95,7 @@ export default function ResetPasswordForm() {
         isClosable: true,
       })
 
-      router.push('/login')
+      router.push('/')
     } catch (error) {
       console.error('Password reset error:', error)
       toast({
