@@ -144,10 +144,22 @@ export default function Home() {
                   <TabList mb="1em">
                     <Tab>Pos Kerja</Tab>
                     <Tab>Padanan Tiga Penjuru</Tab>
-                    <Tab>Profil Pengguna</Tab>
+                    
                   </TabList>
                   <TabPanels>
                     <TabPanel>
+                    <Box
+                        bg={cardBgColor}
+                        borderRadius="lg"
+                        boxShadow="md"
+                        p={6}
+                        mb={8}
+                      >
+                        <Heading as="h2" size="lg" mb={4}>
+                          Profil Pengguna
+                        </Heading>
+                        <UserProfile session={session} />
+                      </Box>
                       <Box
                         bg={cardBgColor}
                         borderRadius="lg"
@@ -156,16 +168,18 @@ export default function Home() {
                         mb={8}
                       >
                         <Heading as="h2" size="lg" mb={4}>
-                          Cipta Pos Kerja Baru
+                          Pos Tukar Suka Sama Suka
                         </Heading>
                         <JobPostForm onPostCreated={handlePostCreated} />
                       </Box>
+
                       <Divider my={8} />
                       <Box
                         bg={cardBgColor}
                         borderRadius="lg"
                         boxShadow="md"
                         p={6}
+                        mb={8}
                       >
                         <Heading as="h2" size="lg" mb={4}>
                           Pos Kerja Terkini
@@ -186,19 +200,7 @@ export default function Home() {
                         <ThreeWayMatcher />
                       </Box>
                     </TabPanel>
-                    <TabPanel>
-                      <Box
-                        bg={cardBgColor}
-                        borderRadius="lg"
-                        boxShadow="md"
-                        p={6}
-                      >
-                        <Heading as="h2" size="lg" mb={4}>
-                          Profil Pengguna
-                        </Heading>
-                        <UserProfile session={session} />
-                      </Box>
-                    </TabPanel>
+                    
                   </TabPanels>
                 </Tabs>
               </Box>

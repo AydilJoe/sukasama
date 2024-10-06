@@ -42,7 +42,7 @@ import {
   AlertDescription,
   CloseButton,
 } from '@chakra-ui/react'
-import { ExternalLinkIcon, RepeatIcon, PhoneIcon, CheckIcon, CloseIcon, DeleteIcon } from '@chakra-ui/icons'
+import { ExternalLinkIcon, RepeatIcon, PhoneIcon, CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import { FaMapMarkerAlt } from 'react-icons/fa'
 
 interface JobPost {
@@ -75,6 +75,8 @@ export default function JobPostsList() {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [totalJobPostCount, setTotalJobPostCount] = useState<number>(0)
   const [showNotification, setShowNotification] = useState(false)
+  const [userPhoneNumber, setUserPhoneNumber] = useState<string | null>(null)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const toast = useToast()
 
   const bgColor = useColorModeValue('white', 'gray.800')
@@ -195,6 +197,24 @@ export default function JobPostsList() {
     }
   }, [currentUserId, toast])
 
+  const fetchUserProfile = useCallback(async () => {
+    if (!currentUserId) return
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('phone_number')
+        .eq('id', currentUserId)
+        .single()
+
+      if (error) throw error
+
+      setUserPhoneNumber(data?.phone_number || null)
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  }, [currentUserId])
+
   const findMatches = useCallback((currentPost: JobPost, allPosts: JobPost[]) => {
     const [currentState, currentDistrict] = currentPost.current_location.split(', ')
     const [expectedState, expectedDistrict] = currentPost.expected_location.split(', ')
@@ -216,20 +236,12 @@ export default function JobPostsList() {
              post.user_id !== currentPost.user_id
     })
 
-    const partialMatchesStateDistrictJob = allPosts.filter(post => {
-      const [postCurrentState, postCurrentDistrict] = post.current_location.split(', ')
-      const [postExpectedState, postExpectedDistrict] = post.expected_location.split(', ')
-      return postCurrentState === expectedState &&
-             postExpectedState === currentState &&
-             post.job_name === currentPost.job_name &&
-             (postCurrentDistrict === expectedDistrict || postExpectedDistrict === currentDistrict) &&
-             post.user_id !== currentPost.user_id
-    })
+  
 
     return {
       exactMatches,
       partialMatchesStateJob,
-      partialMatchesStateDistrictJob
+      
     }
   }, [])
 
@@ -241,11 +253,59 @@ export default function JobPostsList() {
     if (currentUserId) {
       fetchAllJobPosts()
       fetchConnectRequests()
+      fetchUserProfile()
     }
-  }, [currentUserId, fetchAllJobPosts, fetchConnectRequests])
+  }, [currentUserId, fetchAllJobPosts, fetchConnectRequests, fetchUserProfile])
 
   const handleConnectRequest = useCallback((matchUserId: string) => {
     setSelectedMatchUserId(matchUserId)
+    if (userPhoneNumber) {
+      setIsConfirmModalOpen(true)
+    } else {
+      setIsModalOpen(true)
+    }
+  }, [userPhoneNumber])
+
+  const confirmUsePhoneNumber = useCallback(async () => {
+    if (!currentUserId || !selectedMatchUserId || !userPhoneNumber) return
+
+    try {
+      const { error } = await supabase
+        .from('connect_requests')
+        .insert({
+          sender_id: currentUserId,
+          receiver_id: selectedMatchUserId,
+          sender_phone: userPhoneNumber,
+          status: 'pending'
+        })
+
+      if (error) throw error
+
+      toast({
+        title: 'Connect request sent',
+        description: 'Your connect request has been sent successfully.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+
+      await fetchConnectRequests()
+    } catch (error) {
+      console.error('Error handling connect request:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to process the connect request. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+
+    setIsConfirmModalOpen(false)
+  }, [currentUserId, selectedMatchUserId, userPhoneNumber, toast, fetchConnectRequests])
+
+  const handleEditPhoneNumber = useCallback(() => {
+    setIsConfirmModalOpen(false)
     setIsModalOpen(true)
   }, [])
 
@@ -481,7 +541,7 @@ export default function JobPostsList() {
           <VStack align="stretch" spacing={4}>
             {renderMatchSection("Exact Matches", matches.exactMatches)}
             {renderMatchSection("State & Job Matches", matches.partialMatchesStateJob)}
-            {renderMatchSection("State, District & Job Matches", matches.partialMatchesStateDistrictJob)}
+          
           </VStack>
         </VStack>
       </Box>
@@ -548,7 +608,7 @@ export default function JobPostsList() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Send Connect Request</ModalHeader>
+          <ModalHeader>Enter Phone Number</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl>
@@ -566,6 +626,25 @@ export default function JobPostsList() {
               Send Request
             </Button>
             <Button variant="ghost" onClick={() => setIsModalOpen(false)} leftIcon={<CloseIcon />}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Phone Number</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Do you want to use this phone number for the connect request?</Text>
+            <Text fontWeight="bold" mt={2}>{userPhoneNumber}</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={confirmUsePhoneNumber} leftIcon={<CheckIcon />}>
+              Yes, use this number
+            </Button>
+            <Button variant="outline" onClick={handleEditPhoneNumber} leftIcon={<EditIcon />}>
+              No, edit number
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

@@ -192,6 +192,7 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
         
           <VStack spacing={6} align="stretch">
             <Heading as="h2" size="lg" color={headingColor} textAlign="center" mb={4}>Post a Job</Heading>
+            <Heading as="h3" size="l" color={headingColor} textAlign="center" mb={0}>Max 3 Post</Heading>
             <FormControl isRequired position="relative">
               <FormLabel htmlFor="jobName">Job Name</FormLabel>
               <InputGroup>

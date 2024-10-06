@@ -14,6 +14,7 @@ import {
   Input,
   FormControl,
   FormLabel,
+  FormErrorMessage,
 } from '@chakra-ui/react'
 import { Session } from '@supabase/supabase-js'
 
@@ -29,6 +30,7 @@ export default function UserProfile({ session }: { session: Session | null }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [editedProfile, setEditedProfile] = useState<Profile | null>(null)
+  const [phoneError, setPhoneError] = useState('')
   const toast = useToast()
 
   const bgColor = useColorModeValue('white', 'gray.800')
@@ -45,13 +47,23 @@ export default function UserProfile({ session }: { session: Session | null }) {
         .eq('id', session?.user.id)
         .single()
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         throw error
       }
 
       if (data) {
         setProfile(data)
         setEditedProfile(data)
+      } else {
+        const emptyProfile = {
+          id: session?.user.id || '',
+          full_name: '',
+          email: session?.user.email || '',
+          phone_number: ''
+        }
+        setProfile(emptyProfile)
+        setEditedProfile(emptyProfile)
+        setIsEditing(true)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
@@ -73,17 +85,36 @@ export default function UserProfile({ session }: { session: Session | null }) {
     }
   }, [session, fetchProfile])
 
+  const validatePhoneNumber = (phone: string) => {
+    const phoneRegex = /^(\+?6?01)[02-46-9]-*[0-9]{7}$|^(\+?6?01)[1]-*[0-9]{8}$/
+    if (!phone) {
+      setPhoneError('Phone number is required')
+      return false
+    }
+    if (!phoneRegex.test(phone)) {
+      setPhoneError('Invalid phone number format')
+      return false
+    }
+    setPhoneError('')
+    return true
+  }
+
   const updateProfile = async () => {
     if (!editedProfile) return
+
+    if (!validatePhoneNumber(editedProfile.phone_number)) {
+      return
+    }
 
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: session?.user.id,
           full_name: editedProfile.full_name,
+          email: editedProfile.email,
           phone_number: editedProfile.phone_number
         })
-        .eq('id', session?.user.id)
 
       if (error) {
         throw error
@@ -114,10 +145,6 @@ export default function UserProfile({ session }: { session: Session | null }) {
     return <Skeleton height="200px" />
   }
 
-  if (!profile) {
-    return <Text>No profile found.</Text>
-  }
-
   return (
     <Box
       borderWidth={1}
@@ -131,7 +158,9 @@ export default function UserProfile({ session }: { session: Session | null }) {
     >
       <VStack align="stretch" spacing={4}>
         <Heading as="h3" size="md" color={headingColor}>
-          User Profile
+        {profile && !isEditing 
+    ? `Hi ${profile.full_name || 'there'}!` 
+    : (profile ? 'Edit Profile' : 'Create Profile')}
         </Heading>
         {isEditing ? (
           <VStack align="stretch" spacing={4}>
@@ -143,26 +172,38 @@ export default function UserProfile({ session }: { session: Session | null }) {
               />
             </FormControl>
             <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Text fontWeight="bold" color={textColor}>
+              {editedProfile?.email || ''}
+            </Text>
+             
+            </FormControl>
+            <FormControl isInvalid={!!phoneError}>
               <FormLabel>Phone Number</FormLabel>
               <Input
                 value={editedProfile?.phone_number || ''}
-                onChange={(e) => setEditedProfile({ ...editedProfile!, phone_number: e.target.value })}
+                onChange={(e) => {
+                  setEditedProfile({ ...editedProfile!, phone_number: e.target.value })
+                  validatePhoneNumber(e.target.value)
+                }}
+                placeholder="e.g., 601234567890"
               />
+              <FormErrorMessage>{phoneError}</FormErrorMessage>
             </FormControl>
-            <Button onClick={updateProfile} colorScheme="blue">
-              Save Changes
+            <Button onClick={updateProfile} colorScheme="blue" isDisabled={!!phoneError}>
+              {profile ? 'Save Changes' : 'Create Profile'}
             </Button>
-            <Button onClick={() => setIsEditing(false)} variant="outline">
-              Cancel
-            </Button>
+            {profile && (
+              <Button onClick={() => setIsEditing(false)} variant="outline">
+                Cancel
+              </Button>
+            )}
           </VStack>
         ) : (
           <>
-            <Text fontWeight="bold" color={textColor}>
-              Full Name: {profile.full_name}
-            </Text>
-            <Text color={textColor}>Email: {profile.email}</Text>
-            <Text color={textColor}>Phone Number: {profile.phone_number}</Text>
+            
+            <Text color={textColor}>Email: {profile?.email}</Text>
+            <Text color={textColor}>Phone Number: {profile?.phone_number}</Text>
             <Button onClick={() => setIsEditing(true)} colorScheme="blue">
               Edit Profile
             </Button>
