@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Auth from '@/components/Auth'
 import JobPostForm from '@/components/JobPostForm'
 import JobPostsList from '@/components/JobPostsList'
+import UserProfile from '@/components/UserProfile'
 import LogoutButton from '@/components/LogoutButton'
 import SEO from '@/components/SEO'
 import ThreeWayMatcher from '@/components/ThreeWayMatcher'
@@ -143,6 +144,7 @@ export default function Home() {
                   <TabList mb="1em">
                     <Tab>Pos Kerja</Tab>
                     <Tab>Padanan Tiga Penjuru</Tab>
+                    <Tab>Profil Pengguna</Tab>
                   </TabList>
                   <TabPanels>
                     <TabPanel>
@@ -182,6 +184,19 @@ export default function Home() {
                           Padanan Tiga Penjuru
                         </Heading>
                         <ThreeWayMatcher />
+                      </Box>
+                    </TabPanel>
+                    <TabPanel>
+                      <Box
+                        bg={cardBgColor}
+                        borderRadius="lg"
+                        boxShadow="md"
+                        p={6}
+                      >
+                        <Heading as="h2" size="lg" mb={4}>
+                          Profil Pengguna
+                        </Heading>
+                        <UserProfile session={session} />
                       </Box>
                     </TabPanel>
                   </TabPanels>
