@@ -203,7 +203,7 @@ export default function UserProfile({ session }: { session: Session | null }) {
           <>
             
             <Text color={textColor}>Email: {profile?.email}</Text>
-            <Text color={textColor}>Phone Number: {profile?.phone_number}</Text>
+            <Text color={textColor}>Phone Number : {profile?.phone_number}</Text>
             <Button onClick={() => setIsEditing(true)} colorScheme="blue">
               Edit Profile
             </Button>
