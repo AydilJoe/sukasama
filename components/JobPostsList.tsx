@@ -42,7 +42,7 @@ import {
   AlertDescription,
   CloseButton,
 } from '@chakra-ui/react'
-import { ExternalLinkIcon, RepeatIcon, PhoneIcon, CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
+import {  RepeatIcon, PhoneIcon, CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import { FaMapMarkerAlt } from 'react-icons/fa'
 
 interface JobPost {
@@ -236,12 +236,20 @@ export default function JobPostsList() {
              post.user_id !== currentPost.user_id
     })
 
-  
+    const partialMatchesStateDistrictJob = allPosts.filter(post => {
+      const [postCurrentState, postCurrentDistrict] = post.current_location.split(', ')
+      const [postExpectedState, postExpectedDistrict] = post.expected_location.split(', ')
+      return postCurrentState === expectedState &&
+             postExpectedState === currentState &&
+             post.job_name === currentPost.job_name &&
+             (postCurrentDistrict === expectedDistrict || postExpectedDistrict === currentDistrict) &&
+             post.user_id !== currentPost.user_id
+    })
 
     return {
       exactMatches,
       partialMatchesStateJob,
-      
+      partialMatchesStateDistrictJob,
     }
   }, [])
 

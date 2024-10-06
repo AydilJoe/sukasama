@@ -22,11 +22,6 @@ import {
   Button,
   Link,
   Divider,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
 } from '@chakra-ui/react'
 import { Session } from '@supabase/supabase-js'
 import { FaExchangeAlt, FaMapMarkedAlt, FaLock } from 'react-icons/fa'
@@ -193,61 +188,55 @@ export default function Home() {
               </VStack>
             ) : (
               <Box>
-                <Tabs isFitted variant="enclosed">
-                  <TabPanels>
-                    <TabPanel>
-                      <Box
-                        bg={cardBgColor}
-                        borderRadius="lg"
-                        boxShadow="md"
-                        p={6}
-                        mb={8}
-                      >
-                        <Heading as="h2" size="lg" mb={4}>
-                          Profil Pengguna
-                        </Heading>
-                        <UserProfile session={session} />
-                      </Box>
-                      <Box
-                        bg={cardBgColor}
-                        borderRadius="lg"
-                        boxShadow="md"
-                        p={6}
-                        mb={8}
-                      >
-                        <Heading as="h2" size="lg" mb={4}>
-                          Pos Tukar Suka Sama Suka
-                        </Heading>
-                        <JobPostForm onPostCreated={handlePostCreated} />
-                      </Box>
+                <Box
+                  bg={cardBgColor}
+                  borderRadius="lg"
+                  boxShadow="md"
+                  p={6}
+                  mb={8}
+                >
+                  <Heading as="h2" size="lg" mb={4}>
+                    Profil Pengguna
+                  </Heading>
+                  <UserProfile session={session} />
+                </Box>
+                <Box
+                  bg={cardBgColor}
+                  borderRadius="lg"
+                  boxShadow="md"
+                  p={6}
+                  mb={8}
+                >
+                  <Heading as="h2" size="lg" mb={4}>
+                    Pos Tukar Suka Sama Suka
+                  </Heading>
+                  <JobPostForm onPostCreated={handlePostCreated} />
+                </Box>
 
-                      <Divider my={8} />
-                      <Box
-                        bg={cardBgColor}
-                        borderRadius="lg"
-                        boxShadow="md"
-                        p={6}
-                        mb={8}
-                      >
-                        <Heading as="h2" size="lg" mb={4}>
-                          Pos Kerja Terkini
-                        </Heading>
-                        <JobPostsList key={refreshKey} />
-                      </Box>
-                      <Box
-                        bg={cardBgColor}
-                        borderRadius="lg"
-                        boxShadow="md"
-                        p={6}
-                      >
-                        <Heading as="h2" size="lg" mb={4}>
-                          Padanan Tiga Penjuru 
-                        </Heading>
-                        <ThreeWayMatcher />
-                      </Box>
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
+                <Divider my={8} />
+                <Box
+                  bg={cardBgColor}
+                  borderRadius="lg"
+                  boxShadow="md"
+                  p={6}
+                  mb={8}
+                >
+                  <Heading as="h2" size="lg" mb={4}>
+                    Pos Kerja Terkini
+                  </Heading>
+                  <JobPostsList key={refreshKey} />
+                </Box>
+                <Box
+                  bg={cardBgColor}
+                  borderRadius="lg"
+                  boxShadow="md"
+                  p={6}
+                >
+                  <Heading as="h2" size="lg" mb={4}>
+                    Padanan Tiga Penjuru 
+                  </Heading>
+                  <ThreeWayMatcher />
+                </Box>
               </Box>
             )}
 
