@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 import {
   Box,
   Button,
@@ -48,6 +49,7 @@ export default function Auth() {
   const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [resetEmail, setResetEmail] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
     validatePassword(password)
@@ -87,7 +89,7 @@ export default function Auth() {
         result = await supabase.auth.signInWithPassword({ email, password })
       }
 
-      const { error } = result
+      const { error, data } = result
 
       if (error) throw error
 
@@ -100,12 +102,35 @@ export default function Auth() {
           isClosable: true,
         })
       } else {
+        // Check if user profile exists
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', data.user?.id)
+          .single()
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          throw profileError
+        }
+
+        if (!profileData) {
+          // Insert user email into profile table
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({ id: data.user?.id, email: data.user?.email })
+
+          if (insertError) throw insertError
+        }
+
         toast({
           title: "Login successful",
           status: "success",
           duration: 3000,
           isClosable: true,
         })
+
+        // Redirect to home page
+        router.push('/')
       }
     } catch (error) {
       toast({
