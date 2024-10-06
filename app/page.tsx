@@ -22,6 +22,10 @@ import {
   Button,
   Link,
   Divider,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from '@chakra-ui/react'
 import { Session } from '@supabase/supabase-js'
 import { FaExchangeAlt, FaMapMarkedAlt, FaLock } from 'react-icons/fa'
@@ -164,14 +168,18 @@ export default function Home() {
                     <Heading as="h2" size="lg" textAlign="center">
                       Mulakan Perjalanan Kerjaya Baru Anda
                     </Heading>
-                    <Text textAlign="center">
-                    Makin ramai yang sertai, makin tinggi peluang anda menemui padanan sempurna. Kongsi sekarang dan bersama-sama kita wujudkan komuniti penjawat awam yang lebih gembira dan produktif!
-                    #SukaSamaSuka #KerjayaImpian #PenjawatAwamMalaysia 
-                    </Text>
-                    <Text textAlign="center">
-                    #PertukararKerjaMudah #SukaSamaSuka
-                    </Text>
                     
+                     <Alert status="success" variant="subtle" flexDirection="column" alignItems="center" justifyContent="center" textAlign="center" borderRadius="md">
+            <AlertIcon boxSize="40px" mr={0} />
+            <AlertTitle mt={4} mb={1} fontSize="lg">
+              Notis!
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+              Makin ramai yang sertai, makin tinggi peluang anda menemui padanan sempurna. Kongsi sekarang dan bersama-sama kita wujudkan komuniti penjawat awam yang lebih gembira dan produktif!
+                    #SukaSamaSuka #KerjayaImpian #PenjawatAwamMalaysia 
+            </AlertDescription>
+            <CloseButton position="absolute" right="8px" top="8px" onClick={() => setShowNotification(false)} />
+          </Alert>
 
                     <Text textAlign="center">
                       Daftar atau log masuk untuk meneroka peluang pertukaran kerja yang menarik.
