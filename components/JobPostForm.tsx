@@ -207,7 +207,7 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
                   placeholder="Type to search job name"
                   bg={inputBgColor}
                   size="md"
-                  autocomplete="on"
+                  autoComplete="on"
                 />
                 <InputRightElement>
                   <ChevronDownIcon />
