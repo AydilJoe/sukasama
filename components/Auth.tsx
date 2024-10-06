@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
 import {
   Box,
   Button,
@@ -49,7 +48,6 @@ export default function Auth() {
   const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [resetEmail, setResetEmail] = useState('')
-  const router = useRouter()
 
   useEffect(() => {
     validatePassword(password)
@@ -67,6 +65,38 @@ export default function Auth() {
 
   const isPasswordValid = Object.values(passwordValidation).every(Boolean)
   const doPasswordsMatch = password === confirmPassword
+
+  const insertOrUpdateProfile = async (userId: string, userEmail: string) => {
+    const { data: existingProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', userId)
+      .single()
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error('Error checking existing profile:', profileError)
+      return
+    }
+
+    if (!existingProfile) {
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({ id: userId, email: userEmail })
+
+      if (insertError) {
+        console.error('Error inserting profile:', insertError)
+      }
+    } else {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ email: userEmail })
+        .eq('id', userId)
+
+      if (updateError) {
+        console.error('Error updating profile:', updateError)
+      }
+    }
+  }
 
   const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -93,6 +123,10 @@ export default function Auth() {
 
       if (error) throw error
 
+      if (data.user) {
+        await insertOrUpdateProfile(data.user.id, data.user.email || email)
+      }
+
       if (isSignUp) {
         toast({
           title: "Sign up successful",
@@ -102,35 +136,12 @@ export default function Auth() {
           isClosable: true,
         })
       } else {
-        // Check if user profile exists
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', data.user?.id)
-          .single()
-
-        if (profileError && profileError.code !== 'PGRST116') {
-          throw profileError
-        }
-
-        if (!profileData) {
-          // Insert user email into profile table
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({ id: data.user?.id, email: data.user?.email })
-
-          if (insertError) throw insertError
-        }
-
         toast({
           title: "Login successful",
           status: "success",
           duration: 3000,
           isClosable: true,
         })
-
-        // Redirect to home page
-        router.push('/')
       }
     } catch (error) {
       toast({
