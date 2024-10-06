@@ -114,21 +114,23 @@ export default function ResetPasswordForm() {
 
   return (
     <Container maxW="md" centerContent>
-      <Box padding="4" bg="white" boxShadow="md" borderRadius="md" width="100%" mt="8">
+      <Box padding="6" bg="white" boxShadow="md" borderRadius="md" width="100%" mt="8">
         <VStack spacing="6">
-          <Heading as="h1" size="xl">
+          <Heading as="h1" size="xl" color="gray.800">
             Reset Password
           </Heading>
           <form onSubmit={handleResetPassword} style={{ width: '100%' }}>
             <VStack spacing="4">
               <FormControl isRequired>
-                <FormLabel htmlFor="password">New Password</FormLabel>
+                <FormLabel htmlFor="password" color="gray.700">New Password</FormLabel>
                 <InputGroup>
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    color="gray.800"
+                    borderColor="gray.300"
                   />
                   <InputRightElement width="4.5rem">
                     <Button
@@ -142,13 +144,15 @@ export default function ResetPasswordForm() {
                 </InputGroup>
               </FormControl>
               <FormControl isRequired>
-                <FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
+                <FormLabel htmlFor="confirmPassword" color="gray.700">Confirm New Password</FormLabel>
                 <InputGroup>
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    color="gray.800"
+                    borderColor="gray.300"
                   />
                   <InputRightElement width="4.5rem">
                     <Button
@@ -162,12 +166,12 @@ export default function ResetPasswordForm() {
                 </InputGroup>
               </FormControl>
               <Box width="100%">
-                <Text fontWeight="medium" mb="2">
+                <Text fontWeight="medium" mb="2" color="gray.700">
                   Password must contain:
                 </Text>
                 <List spacing={1}>
                   {Object.entries(passwordValidation).map(([key, valid]) => (
-                    <ListItem key={key}>
+                    <ListItem key={key} color={valid ? "green.500" : "red.500"}>
                       <ListIcon
                         as={valid ? CheckIcon : CloseIcon}
                         color={valid ? 'green.500' : 'red.500'}
