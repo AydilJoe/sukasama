@@ -70,17 +70,7 @@ export default function ResetPassword() {
         throw new Error('Passwords do not match')
       }
 
-      const token_hash = searchParams?.get('token_hash')
-      const email = searchParams?.get('email')
-
-      if (!token_hash || !email) {
-        throw new Error('Reset token hash or email is missing')
-      }
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        password,
-        token_hash,
-      })
+      const { error } = await supabase.auth.updateUser({ password })
 
       if (error) throw error
 
@@ -92,7 +82,7 @@ export default function ResetPassword() {
         isClosable: true,
       })
 
-      router.push('/login')
+      router.push('/')
     } catch (error) {
       console.error('Password reset error:', error)
       toast({
