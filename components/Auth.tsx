@@ -66,6 +66,24 @@ export default function Auth() {
   const isPasswordValid = Object.values(passwordValidation).every(Boolean)
   const doPasswordsMatch = password === confirmPassword
 
+  const createProfile = async (userId: string) => {
+    const { error } = await supabase
+      .from('profiles')
+      .insert([
+        { 
+          id: userId,
+          full_name: '',
+          email: email,
+          phone_number: ''
+        }
+      ])
+
+    if (error) {
+      console.error('Error creating profile:', error)
+      throw error
+    }
+  }
+
   const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
@@ -83,6 +101,9 @@ export default function Auth() {
       let result;
       if (isSignUp) {
         result = await supabase.auth.signUp({ email, password })
+        if (result.data.user) {
+          await createProfile(result.data.user.id)
+        }
       } else {
         result = await supabase.auth.signInWithPassword({ email, password })
       }
