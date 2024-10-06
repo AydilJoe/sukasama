@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 import {
@@ -30,18 +30,14 @@ export default function ProfilePage() {
   const toast = useToast()
   const supabase = createClientComponentClient()
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  async function fetchProfile() {
+  const fetchProfile = useCallback(async () => {
     try {
       setLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) throw new Error('No user found')
 
-      let { data, error, status } = await supabase
+      const { data, error, status } = await supabase
         .from('profiles')
         .select('id, full_name, email, phone_number, avatar_url')
         .eq('id', user.id)
@@ -66,7 +62,11 @@ export default function ProfilePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase, toast])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   if (loading) {
     return (
