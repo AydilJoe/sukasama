@@ -1,34 +1,38 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import {
   Box,
   Button,
+  Container,
   FormControl,
   FormLabel,
-  Input,
-  VStack,
   Heading,
-  Text,
-  useToast,
+  Input,
   InputGroup,
   InputRightElement,
-  IconButton,
   List,
-  ListItem,
   ListIcon,
-  FormErrorMessage,
+  ListItem,
+  Text,
+  VStack,
+  useToast,
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 
 export default function ResetPassword() {
-  const [loading, setLoading] = useState(false)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const supabase = createClientComponentClient()
+  const toast = useToast()
+
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     uppercase: false,
@@ -36,9 +40,6 @@ export default function ResetPassword() {
     number: false,
     special: false,
   })
-  const toast = useToast()
-  const router = useRouter()
-  const supabase = createClientComponentClient()
 
   useEffect(() => {
     validatePassword(password)
@@ -69,25 +70,40 @@ export default function ResetPassword() {
         throw new Error('Passwords do not match')
       }
 
-      const { error } = await supabase.auth.updateUser({ password })
+      const token_hash = searchParams?.get('token_hash')
+      const email = searchParams?.get('email')
 
-      if (error) throw error
+      if (!token_hash || !email) {
+        throw new Error('Missing token_hash or email in URL')
+      }
+
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash,
+        type: 'recovery',
+        email,
+      })
+
+      if (verifyError) throw verifyError
+
+      const { error: updateError } = await supabase.auth.updateUser({ password })
+
+      if (updateError) throw updateError
 
       toast({
-        title: "Password reset successful",
-        description: "Your password has been updated. You can now log in with your new password.",
-        status: "success",
+        title: 'Password reset successful',
+        description: 'Your password has been updated. You can now log in with your new password.',
+        status: 'success',
         duration: 5000,
         isClosable: true,
       })
 
-      router.push('/')
+      router.push('/login')
     } catch (error) {
       console.error('Password reset error:', error)
       toast({
-        title: "Password reset failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        status: "error",
+        title: 'Password reset failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        status: 'error',
         duration: 5000,
         isClosable: true,
       })
@@ -97,79 +113,92 @@ export default function ResetPassword() {
   }
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" p={4}>
-      <form onSubmit={handleResetPassword}>
-        <VStack spacing={4} align="stretch" width="300px">
-          <Heading as="h1" size="xl" textAlign="center">
+    <Container maxW="md" centerContent>
+      <Box padding="4" bg="white" boxShadow="md" borderRadius="md" width="100%" mt="8">
+        <VStack spacing="6">
+          <Heading as="h1" size="xl">
             Reset Password
           </Heading>
-          <Text textAlign="center">
-            Enter your new password below.
-          </Text>
-          <FormControl isRequired>
-            <FormLabel htmlFor="password">New Password</FormLabel>
-            <InputGroup>
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your new password"
-              />
-              <InputRightElement>
-                <IconButton
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                  onClick={() => setShowPassword(!showPassword)}
-                  variant="ghost"
-                />
-              </InputRightElement>
-            </InputGroup>
-          </FormControl>
-          <FormControl isRequired isInvalid={!doPasswordsMatch && confirmPassword !== ''}>
-            <FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
-            <InputGroup>
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm your new password"
-              />
-              <InputRightElement>
-                <IconButton
-                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                  icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  variant="ghost"
-                />
-              </InputRightElement>
-            </InputGroup>
-            <FormErrorMessage>Passwords do not match</FormErrorMessage>
-          </FormControl>
-          <List spacing={1} fontSize="sm">
-            {Object.entries(passwordValidation).map(([key, valid]) => (
-              <ListItem key={key}>
-                <ListIcon as={valid ? CheckIcon : CloseIcon} color={valid ? "green.500" : "red.500"} />
-                {key === 'length' ? 'At least 8 characters' : 
-                 key === 'uppercase' ? 'Contains uppercase letter' :
-                 key === 'lowercase' ? 'Contains lowercase letter' :
-                 key === 'number' ? 'Contains number' :
-                 'Contains special character'}
-              </ListItem>
-            ))}
-          </List>
-          <Button
-            type="submit"
-            isLoading={loading}
-            loadingText="Resetting Password..."
-            colorScheme="blue"
-            isDisabled={!isPasswordValid || !doPasswordsMatch}
-          >
-            Reset Password
-          </Button>
+          <form onSubmit={handleResetPassword} style={{ width: '100%' }}>
+            <VStack spacing="4">
+              <FormControl isRequired>
+                <FormLabel htmlFor="password">New Password</FormLabel>
+                <InputGroup>
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <InputRightElement width="4.5rem">
+                    <Button
+                      h="1.75rem"
+                      size="sm"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
+                <InputGroup>
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <InputRightElement width="4.5rem">
+                    <Button
+                      h="1.75rem"
+                      size="sm"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+              <Box width="100%">
+                <Text fontWeight="medium" mb="2">
+                  Password must contain:
+                </Text>
+                <List spacing={1}>
+                  {Object.entries(passwordValidation).map(([key, valid]) => (
+                    <ListItem key={key}>
+                      <ListIcon
+                        as={valid ? CheckIcon : CloseIcon}
+                        color={valid ? 'green.500' : 'red.500'}
+                      />
+                      {key === 'length'
+                        ? 'At least 8 characters'
+                        : key === 'uppercase'
+                        ? 'At least one uppercase letter'
+                        : key === 'lowercase'
+                        ? 'At least one lowercase letter'
+                        : key === 'number'
+                        ? 'At least one number'
+                        : 'At least one special character'}
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+              <Button
+                type="submit"
+                colorScheme="blue"
+                width="100%"
+                isLoading={loading}
+                loadingText="Resetting Password"
+                isDisabled={!isPasswordValid || !doPasswordsMatch}
+              >
+                Reset Password
+              </Button>
+            </VStack>
+          </form>
         </VStack>
-      </form>
-    </Box>
+      </Box>
+    </Container>
   )
 }
