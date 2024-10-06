@@ -70,7 +70,7 @@ const AnimatedBackground = () => {
             y: [0, Math.random() * 200 - 100],
             x: [0, Math.random() * 200 - 100],
             scale: [1, Math.random() * 1.5 + 0.5],
-            opacity: [0, 1, 0],
+            opacity: [0, 0.8, 0],
           }}
           transition={{
             duration: Math.random() * 10 + 10,
@@ -120,7 +120,7 @@ export default function Home() {
       />
       <meta name="google-site-verification" content="J6_bNMdHhm9jMxGJXJ4ugeErGUGU9iG23VscVVzDhWc" />
       <AnimatedBackground />
-      <Box minHeight="100vh" bg={bgColor} color={textColor} position="relative" zIndex={3} backdropFilter="blur(0px)">
+      <Box minHeight="100vh" bg={bgColor} color={textColor} position="relative" zIndex={3} backdropFilter="blur(1px)">
         <Container maxW="container.xl" py={6}>
           <VStack spacing={12} align="stretch">
             <HStack justifyContent="space-between" alignItems="center" wrap="wrap">
