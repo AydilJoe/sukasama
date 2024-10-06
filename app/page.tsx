@@ -31,16 +31,68 @@ import {
 import { Session } from '@supabase/supabase-js'
 import { FaExchangeAlt, FaMapMarkedAlt, FaLock } from 'react-icons/fa'
 import NextLink from 'next/link'
+import { motion } from 'framer-motion'
+
+const AnimatedBackground = () => {
+  const gradientStart = useColorModeValue('gray.700', 'gray.900')
+  const gradientEnd = useColorModeValue('gray.600', 'gray.800')
+
+  return (
+    <Box
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      zIndex={-1}
+      overflow="hidden"
+    >
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bgGradient={`linear(to-br, ${gradientStart}, ${gradientEnd})`}
+      />
+      {[...Array(100)].map((_, i) => (
+        <motion.div
+          key={i}
+          style={{
+            position: 'absolute',
+            background: 'white',
+            borderRadius: '50%',
+            width: Math.random() * 10 + 5,
+            height: Math.random() * 10 + 5,
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, Math.random() * 200 - 100],
+            x: [0, Math.random() * 200 - 100],
+            scale: [1, Math.random() * 1.5 + 0.5],
+            opacity: [0, 0.3, 0],
+          }}
+          transition={{
+            duration: Math.random() * 10 + 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </Box>
+  )
+}
 
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const bgColor = useColorModeValue('gray.50', 'gray.900')
+  const bgColor = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(26, 32, 44, 0.8)')
   const textColor = useColorModeValue('gray.800', 'gray.100')
   const cardBgColor = useColorModeValue('white', 'gray.700')
   const primaryColor = useColorModeValue('blue.500', 'blue.300')
-
+  
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -68,7 +120,8 @@ export default function Home() {
         ogImage="https://www.suka-sama-suka.com/og-image.jpg"
       />
       <meta name="google-site-verification" content="J6_bNMdHhm9jMxGJXJ4ugeErGUGU9iG23VscVVzDhWc" />
-      <Box minHeight="100vh" bg={bgColor} color={textColor}>
+      <AnimatedBackground />
+      <Box minHeight="100vh" bg={bgColor} color={textColor} position="relative" zIndex={1} backdropFilter="blur(5px)">
         <Container maxW="container.xl" py={8}>
           <VStack spacing={12} align="stretch">
             <HStack justifyContent="space-between" alignItems="center" wrap="wrap">
@@ -79,7 +132,7 @@ export default function Home() {
                 <Heading as="h2" size="l" color={primaryColor}>
                   by AJ
                 </Heading>
-                <Text fontSize="xl" fontWeight="medium" color="gray.500">
+                <Text fontSize="xl" fontWeight="medium" color={useColorModeValue("gray.600", "gray.300")}>
                   Pertukaran suka sama suka untuk penjawat awam Malaysia
                 </Text>
               </VStack>
@@ -141,14 +194,9 @@ export default function Home() {
             ) : (
               <Box>
                 <Tabs isFitted variant="enclosed">
-                  <TabList mb="1em">
-                    <Tab>Pos Kerja</Tab>
-                    <Tab>Padanan Tiga Penjuru</Tab>
-                    
-                  </TabList>
                   <TabPanels>
                     <TabPanel>
-                    <Box
+                      <Box
                         bg={cardBgColor}
                         borderRadius="lg"
                         boxShadow="md"
@@ -186,8 +234,6 @@ export default function Home() {
                         </Heading>
                         <JobPostsList key={refreshKey} />
                       </Box>
-                    </TabPanel>
-                    <TabPanel>
                       <Box
                         bg={cardBgColor}
                         borderRadius="lg"
@@ -200,20 +246,21 @@ export default function Home() {
                         <ThreeWayMatcher />
                       </Box>
                     </TabPanel>
-                    
                   </TabPanels>
                 </Tabs>
               </Box>
             )}
 
             <Box as="footer" textAlign="center" pt={8}>
-              <Text fontSize="sm" color="gray.500">
+              <Text fontSize="sm" color={useColorModeValue("gray.600", "gray.400")}>
                 © 2024 SukaSamaSuka. Hak Cipta Terpelihara.
               </Text>
-              <HStack justifyContent="center" mt={2} fontSize="sm" color="gray.500">
+             
+              <HStack justifyContent="center" mt={2} fontSize="sm" color={useColorModeValue("gray.600", "gray.400")}>
                 <Link as={NextLink} href="/privacy">Dasar Privasi</Link>
                 <Link as={NextLink} href="/terms">Terma Penggunaan</Link>
                 <Link as={NextLink} href="/contact">Hubungi Kami</Link>
+                <Link href="https://bwtpgfxwnqquvqigtqkt.supabase.co/storage/v1/object/sign/qr/image-RwGVxYQGQAXsHu33vF09bR5uqOG9O2.avif?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJxci9pbWFnZS1Sd0dWeFlRR1FBWHNIdTMzdkYwOWJSNXVxT0c5TzIuYXZpZiIsImlhdCI6MTcyNzk1MjE5MCwiZXhwIjo4NjU3Mjc4NjU3OTB9.A5Y8Pn9ny5u-tS-FfoydU_b6m_2-y3Ja3bJ7gdKew0E&t=2024-10-03T10%3A43%3A10.546Z">Donate</Link>
               </HStack>
             </Box>
           </VStack>
@@ -232,7 +279,7 @@ interface FeatureProps {
 function Feature({ title, text, icon }: FeatureProps) {
   return (
     <VStack>
-      <Icon as={icon} w={10} h={10} color="blue.500" />
+      <Icon as={icon} w={10} h={10} color={useColorModeValue("blue.500", "blue.300")} />
       <Text fontWeight="bold" fontSize="lg">{title}</Text>
       <Text textAlign="center">{text}</Text>
     </VStack>

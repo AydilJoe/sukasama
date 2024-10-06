@@ -548,10 +548,7 @@ export default function JobPostsList() {
     )
   }, [bgColor, borderColor, headingColor, textColor, findMatches, allJobPosts, renderMatchSection, handleDeletePost])
 
-  const handleDonateClick = () => {
-    window.open('https://bwtpgfxwnqquvqigtqkt.supabase.co/storage/v1/object/sign/qr/image-RwGVxYQGQAXsHu33vF09bR5uqOG9O2.avif?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJxci9pbWFnZS1Sd0dWeFlRR1FBWHNIdTMzdkYwOWJSNXVxT0c5TzIuYXZpZiIsImlhdCI6MTcyNzk1MjE5MCwiZXhwIjo4NjU3Mjc4NjU3OTB9.A5Y8Pn9ny5u-tS-FfoydU_b6m_2-y3Ja3bJ7gdKew0E&t=2024-10-03T10%3A43%3A10.546Z', '_blank')
-  }
-
+  
   return (
     <Container maxW="container.xl" py={8}>
       <VStack spacing={8} align="stretch">
@@ -579,13 +576,7 @@ export default function JobPostsList() {
             >
               Refresh
             </Button>
-            <Button
-              onClick={handleDonateClick}
-              colorScheme="green"
-              leftIcon={<ExternalLinkIcon />}
-            >
-              Donate
-            </Button>
+           
           </Stack>
         </Flex>
         <Stat>

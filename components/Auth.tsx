@@ -38,6 +38,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
+  const [name, setName] = useState('')
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     uppercase: false,
@@ -72,7 +73,7 @@ export default function Auth() {
       .insert([
         { 
           id: userId,
-          full_name: '',
+          full_name: name,
           email: email,
           phone_number: ''
         }
@@ -96,11 +97,22 @@ export default function Auth() {
         if (!doPasswordsMatch) {
           throw new Error('Passwords do not match')
         }
+        if (!name.trim()) {
+          throw new Error('Name is required')
+        }
       }
 
       let result;
       if (isSignUp) {
-        result = await supabase.auth.signUp({ email, password })
+        result = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: {
+            data: {
+              full_name: name
+            }
+          }
+        })
         if (result.data.user) {
           await createProfile(result.data.user.id)
         }
@@ -176,6 +188,18 @@ export default function Auth() {
           <Heading as="h1" size="xl" textAlign="center">
             {isSignUp ? "Sign Up" : "Sign In"}
           </Heading>
+          {isSignUp && (
+            <FormControl isRequired>
+              <FormLabel htmlFor="name">Name</FormLabel>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your full name"
+              />
+            </FormControl>
+          )}
           <FormControl isRequired>
             <FormLabel htmlFor="email">Email</FormLabel>
             <Input
@@ -248,7 +272,7 @@ export default function Auth() {
             isLoading={loading}
             loadingText={isSignUp ? "Signing up..." : "Logging in..."}
             colorScheme="blue"
-            isDisabled={isSignUp && (!isPasswordValid || !doPasswordsMatch)}
+            isDisabled={isSignUp && (!isPasswordValid || !doPasswordsMatch || !name.trim())}
           >
             {isSignUp ? "Sign Up" : "Log In"}
           </Button>
@@ -262,6 +286,7 @@ export default function Auth() {
                 setIsSignUp(!isSignUp)
                 setPassword('')
                 setConfirmPassword('')
+                setName('')
               }}
             >
               {isSignUp ? "Log In" : "Sign Up"}
