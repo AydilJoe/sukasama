@@ -59,7 +59,6 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
   const [showJobSuggestions, setShowJobSuggestions] = useState(false)
   const toast = useToast()
 
-  
   const cardBgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const headingColor = useColorModeValue('purple.700', 'purple.300')
@@ -103,6 +102,18 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
+
+    if (!jobName) {
+      toast({
+        title: "Error",
+        description: "Please select a valid job name from the list.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      })
+      setLoading(false)
+      return
+    }
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -179,181 +190,179 @@ export default function JobPostForm({ onPostCreated }: JobPostFormProps) {
 
   return (
     <Box 
-          as="form" 
-          onSubmit={handleSubmit} 
-          bg={cardBgColor} 
-          borderRadius="lg" 
-          borderWidth={1} 
-          borderColor={borderColor} 
-          p={8}
-          boxShadow="lg"
-        >
+      as="form" 
+      onSubmit={handleSubmit} 
+      bg={cardBgColor} 
+      borderRadius="lg" 
+      borderWidth={1} 
+      borderColor={borderColor} 
+      p={8}
+      boxShadow="lg"
+    >
       <Container maxW="container.md">
-        
-          <VStack spacing={6} align="stretch">
-            <Heading as="h2" size="lg" color={headingColor} textAlign="center" mb={4}>Post a Job</Heading>
-            <Heading as="h3" size="l" color={headingColor} textAlign="center" mb={0}>Max 3 Post</Heading>
-            <FormControl isRequired position="relative">
-              <FormLabel htmlFor="jobName">Job Name</FormLabel>
-              <InputGroup>
-                <Input
-                  id="jobName"
-                  value={jobNameInput}
-                  onChange={(e) => {
-                    setJobNameInput(e.target.value)
-                    setShowJobSuggestions(true)
-                  }}
-                  onFocus={() => setShowJobSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowJobSuggestions(false), 200)}
-                  placeholder="Type to search job name"
-                  bg={inputBgColor}
-                  size="md"
-                  autoComplete="on"
-                />
-                <InputRightElement>
-                  <ChevronDownIcon />
-                </InputRightElement>
-              </InputGroup>
-              {showJobSuggestions && filteredJobNames.length > 0 && (
-                <List
-                  position="absolute"
-                  zIndex={1}
-                  w="100%"
-                  bg={suggestionBgColor}
-                  borderRadius="md"
-                  boxShadow="md"
-                  mt={1}
-                  maxH="200px"
-                  overflowY="auto"
-                >
-                  {filteredJobNames.map((name, index) => (
-                    <ListItem
-                      key={index}
-                      px={4}
-                      py={2}
-                      cursor="pointer"
-                      _hover={{ bg: suggestionHoverBgColor }}
-                      onClick={() => {
-                        setJobNameInput(name)
-                        setJobName(name)
-                        setShowJobSuggestions(false)
-                      }}
-                    >
-                      {name}
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel htmlFor="jobGrade">Job Grade</FormLabel>
-              <Select
-                id="jobGrade"
-                value={jobGrade}
-                onChange={(e) => setJobGrade(e.target.value)}
-                placeholder="Select job grade"
-                isDisabled={!jobName}
+        <VStack spacing={6} align="stretch">
+          <Heading as="h2" size="lg" color={headingColor} textAlign="center" mb={4}>Post a Job</Heading>
+          <Heading as="h3" size="l" color={headingColor} textAlign="center" mb={0}>Max 3 Post</Heading>
+          <FormControl isRequired position="relative">
+            <FormLabel htmlFor="jobName">Job Name</FormLabel>
+            <InputGroup>
+              <Input
+                id="jobName"
+                value={jobNameInput}
+                onChange={(e) => {
+                  setJobNameInput(e.target.value)
+                  setShowJobSuggestions(true)
+                }}
+                onFocus={() => setShowJobSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowJobSuggestions(false), 200)}
+                placeholder="Type to search job name"
                 bg={inputBgColor}
                 size="md"
+                autoComplete="off"
+              />
+              <InputRightElement>
+                <ChevronDownIcon />
+              </InputRightElement>
+            </InputGroup>
+            {showJobSuggestions && filteredJobNames.length > 0 && (
+              <List
+                position="absolute"
+                zIndex={1}
+                w="100%"
+                bg={suggestionBgColor}
+                borderRadius="md"
+                boxShadow="md"
+                mt={1}
+                maxH="200px"
+                overflowY="auto"
               >
-                {jobGrades
-                  .filter(job => job.name === jobName)
-                  .map((job, index) => (
-                    <option key={index} value={job.grade}>{job.grade}</option>
-                  ))}
-              </Select>
-            </FormControl>
-            <SimpleGrid columns={2} spacing={4}>
-              <Box>
-                <Text fontWeight="bold" mb={2}>Current Location</Text>
-                <FormControl isRequired>
-                  <FormLabel htmlFor="currentState">State</FormLabel>
-                  <Select
-                    id="currentState"
-                    value={currentState}
-                    onChange={(e) => {
-                      setCurrentState(e.target.value)
-                      setCurrentDistrict('')
+                {filteredJobNames.map((name, index) => (
+                  <ListItem
+                    key={index}
+                    px={4}
+                    py={2}
+                    cursor="pointer"
+                    _hover={{ bg: suggestionHoverBgColor }}
+                    onClick={() => {
+                      setJobNameInput(name)
+                      setJobName(name)
+                      setShowJobSuggestions(false)
                     }}
-                    placeholder="Select state"
-                    bg={inputBgColor}
-                    size="md"
                   >
-                    {states.map((state, index) => (
-                      <option key={index} value={state}>{state}</option>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl isRequired mt={4}>
-                  <FormLabel htmlFor="currentDistrict">District</FormLabel>
-                  <Select
-                    id="currentDistrict"
-                    value={currentDistrict}
-                    onChange={(e) => setCurrentDistrict(e.target.value)}
-                    placeholder="Select district"
-                    isDisabled={!currentState}
-                    bg={inputBgColor}
-                    size="md"
-                  >
-                    {currentState && malaysiaStatesAndDistricts[currentState].map((district, index) => (
-                      <option key={index} value={district}>{district}</option>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
-              <Box>
-                <Text fontWeight="bold" mb={2}>Expected Location</Text>
-                <FormControl isRequired>
-                  <FormLabel htmlFor="expectedState">State</FormLabel>
-                  <Select
-                    id="expectedState"
-                    value={expectedState}
-                    onChange={(e) => {
-                      setExpectedState(e.target.value)
-                      setExpectedDistrict('')
-                    }}
-                    placeholder="Select state"
-                    isDisabled={!currentState}
-                    bg={inputBgColor}
-                    size="md"
-                  >
-                    {states.map((state, index) => (
-                      <option key={index} value={state}>{state}</option>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl isRequired mt={4}>
-                  <FormLabel htmlFor="expectedDistrict">District</FormLabel>
-                  <Select
-                    id="expectedDistrict"
-                    value={expectedDistrict}
-                    onChange={(e) => setExpectedDistrict(e.target.value)}
-                    placeholder="Select district"
-                    isDisabled={!expectedState || (expectedState === currentState && expectedDistrict === currentDistrict)}
-                    bg={inputBgColor}
-                    size="md"
-                  >
-                    {expectedDistrictOptions.map((district, index) => (
-                      <option key={index} value={district}>{district}</option>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
-            </SimpleGrid>
-            <Button
-              type="submit"
-              isLoading={loading}
-              loadingText="Posting..."
-              colorScheme="purple"
-              size="lg"
-              width="full"
-              mt={4}
+                    {name}
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel htmlFor="jobGrade">Job Grade</FormLabel>
+            <Select
+              id="jobGrade"
+              value={jobGrade}
+              onChange={(e) => setJobGrade(e.target.value)}
+              placeholder="Select job grade"
+              isDisabled={!jobName}
+              bg={inputBgColor}
+              size="md"
             >
-              Post Job
-            </Button>
-          </VStack>
-        
+              {jobGrades
+                .filter(job => job.name === jobName)
+                .map((job, index) => (
+                  <option key={index} value={job.grade}>{job.grade}</option>
+                ))}
+            </Select>
+          </FormControl>
+          <SimpleGrid columns={2} spacing={4}>
+            <Box>
+              <Text fontWeight="bold" mb={2}>Current Location</Text>
+              <FormControl isRequired>
+                <FormLabel htmlFor="currentState">State</FormLabel>
+                <Select
+                  id="currentState"
+                  value={currentState}
+                  onChange={(e) => {
+                    setCurrentState(e.target.value)
+                    setCurrentDistrict('')
+                  }}
+                  placeholder="Select state"
+                  bg={inputBgColor}
+                  size="md"
+                >
+                  {states.map((state, index) => (
+                    <option key={index} value={state}>{state}</option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl isRequired mt={4}>
+                <FormLabel htmlFor="currentDistrict">District</FormLabel>
+                <Select
+                  id="currentDistrict"
+                  value={currentDistrict}
+                  onChange={(e) => setCurrentDistrict(e.target.value)}
+                  placeholder="Select district"
+                  isDisabled={!currentState}
+                  bg={inputBgColor}
+                  size="md"
+                >
+                  {currentState && malaysiaStatesAndDistricts[currentState].map((district, index) => (
+                    <option key={index} value={district}>{district}</option>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <Text fontWeight="bold" mb={2}>Expected Location</Text>
+              <FormControl isRequired>
+                <FormLabel htmlFor="expectedState">State</FormLabel>
+                <Select
+                  id="expectedState"
+                  value={expectedState}
+                  onChange={(e) => {
+                    setExpectedState(e.target.value)
+                    setExpectedDistrict('')
+                  }}
+                  placeholder="Select state"
+                  isDisabled={!currentState}
+                  bg={inputBgColor}
+                  size="md"
+                >
+                  {states.map((state, index) => (
+                    <option key={index} value={state}>{state}</option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl isRequired mt={4}>
+                <FormLabel htmlFor="expectedDistrict">District</FormLabel>
+                <Select
+                  id="expectedDistrict"
+                  value={expectedDistrict}
+                  onChange={(e) => setExpectedDistrict(e.target.value)}
+                  placeholder="Select district"
+                  isDisabled={!expectedState || (expectedState === currentState && expectedDistrict === currentDistrict)}
+                  bg={inputBgColor}
+                  size="md"
+                >
+                  {expectedDistrictOptions.map((district, index) => (
+                    <option key={index} value={district}>{district}</option>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </SimpleGrid>
+          <Button
+            type="submit"
+            isLoading={loading}
+            loadingText="Posting..."
+            colorScheme="purple"
+            size="lg"
+            width="full"
+            mt={4}
+          >
+            Post Job
+          </Button>
+        </VStack>
       </Container>
-      </Box>
+    </Box>
   )
 }
