@@ -118,6 +118,8 @@ export default function Home() {
         keywords={['job matching', 'Malaysian civil servants', 'job swap', 'government jobs', 'Malaysia', 'career change', 'penjawat awam', 'pertukaran kerja']}
         ogImage="https://www.suka-sama-suka.com/og-image.jpg"
       />
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1513356284203988"
+     crossorigin="anonymous"></script>
       <meta name="google-site-verification" content="J6_bNMdHhm9jMxGJXJ4ugeErGUGU9iG23VscVVzDhWc" />
       <AnimatedBackground />
       <Box minHeight="100vh" bg={bgColor} color={textColor} position="relative" zIndex={3} backdropFilter="blur(1px)">
