@@ -118,8 +118,8 @@ export default function Home() {
         keywords={['job matching', 'Malaysian civil servants', 'job swap', 'government jobs', 'Malaysia', 'career change', 'penjawat awam', 'pertukaran kerja']}
         ogImage="https://www.suka-sama-suka.com/og-image.jpg"
       />
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1513356284203988"
-     crossOrigin="anonymous"></script>
+
+     
      
      <meta name="google-adsense-account" content="ca-pub-1513356284203988"/>
       <AnimatedBackground />
